@@ -16,7 +16,7 @@
   "keywords": [
     "OAI"
   ],
-  "license": "Unlicense",
+  "license": "ISC",
   "private": true,
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -37,5 +37,16 @@
     "ignore": [
       "/tests/**"
     ]
+  },
+  "author": {
+    "name": "ISA group",
+    "web": "http://www.isa.us.es/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/governify/collector-events"
+  },
+  "docker": {
+    "url": "https://hub.docker.com/r/governify/collector-events"
   }
 }
