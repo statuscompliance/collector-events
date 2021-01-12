@@ -1,0 +1,185 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Computations list
+  description: >-
+    This is an OpenAPI Specification created by oas-wizard
+    (https://github.com/pafmon/oas-wizard)  
+  contact:
+    name: PabloFM
+    email: pablofm@us.es
+    url: 'http://www.isa.us.es'
+  license:
+    name: MIT
+    url: 'http://opensource.org/licenses/MIT'
+paths:
+  /api/v2/computations:
+    post:
+      description: Asks for the computation of a metric
+      operationId: addComputation
+      responses:
+        '201':
+          description: Computation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/computationInfo'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorModel'
+      requestBody:
+        x-name: metric
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/metric'
+        description: Metric to be computed
+        required: true
+  '/api/v2/computations/{computationId}':
+    get:
+      description: Returns computations by computationId if its already calculated
+      operationId: findComputationBycomputationId
+      parameters:
+        - name: computationId
+          in: path
+          description: computationId of computation to be returned
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Computations returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/computationResponse'
+        '202':
+          description: Request is correct but computation is still being calculated
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorModel'
+components:
+  schemas:
+    errorModel:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    metric:
+      description: 'What the collector receives to compute.'
+      type: object
+      properties:
+        metric:
+          type: object
+          properties:
+            computing:
+              type: string
+              minLength: 1
+            element:
+              anyOf:
+                - type: object
+                - type: string
+            event:
+              type: object
+            scope:
+              type: object
+            window:
+              type: object
+              properties:
+                initial:
+                  type: string
+                  minLength: 1
+                period:
+                  type: string
+                  minLength: 1
+                type:
+                  type: string
+                  minLength: 1
+                end:
+                  type: string
+                  minLength: 1
+              required:
+                - initial
+                - period
+                - type
+                - end
+            offset:
+              type: integer
+          required:
+            - computing
+            - element
+            - event
+            - scope 
+            - window 
+        config:
+          type: object
+          properties:                     
+            scopeManager:
+              type: string
+              minLength: 1
+          required:
+            - scopeManager        
+      required:
+        - config
+        - metric
+    computationInfo:
+      description: 'Code, message and computationId'
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        computation:
+          type: string        
+    computationResponse:
+      description: ''
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        computations:
+          type: array
+          items:
+              $ref: '#/components/schemas/computation'
+    computation:
+      description: ''
+      type: object
+      properties:
+        scope:
+          type: object
+        period:
+          type: object
+          properties:                     
+            from:
+              type: string
+              minLength: 1
+            to:
+              type: string
+              minLength: 1
+          required:
+            - from
+            - to
+        evidences:
+          type: array
+        value:
+          type: number
+      required:
+        - scope
+        - period
+        - evidences
+        - value

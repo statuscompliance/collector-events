@@ -1,0 +1,130 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Computations list
+  description: >-
+    This is an OpenAPI Specification created by oas-wizard
+    (https://github.com/pafmon/oas-wizard)  
+  contact:
+    name: PabloFM
+    email: pablofm@us.es
+    url: 'http://www.isa.us.es'
+  license:
+    name: MIT
+    url: 'http://opensource.org/licenses/MIT'
+paths:
+  /api/v1/computations:
+    post:
+      description: Asks for the computation of a measure
+      operationId: addMeasure
+      responses:
+        '201':
+          description: measure created
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorModel'
+      requestBody:
+        x-name: measure
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/measure'
+        description: Measure to be created
+        required: true
+  '/api/v1/computations/{computationId}':
+    get:
+      description: Returns a measure by computatioId
+      operationId: findMeasureBycomputationId
+      parameters:
+        - name: computationId
+          in: path
+          description: computationId of measure to fetch
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Measure returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/measure'
+        '202':
+          description: Request is correct but the system is not ready to give a response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorModel'
+components:
+  schemas:
+    errorModel:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    measure:
+      description: ''
+      type: object
+      properties:
+        window:
+          type: object
+          properties:
+            initial:
+              type: string
+              minLength: 1
+            period:
+              type: string
+              minLength: 1
+            type:
+              type: string
+              minLength: 1
+            end:
+              type: string
+              minLength: 1
+          required:
+            - initial
+            - period
+            - type
+            - end
+        config:
+          type: object
+          properties:
+            measure:
+              type: object
+              properties:
+                computing:
+                  type: string
+                  minLength: 1
+                element:
+                  type: string
+                  minLength: 1
+                event:
+                  type: object
+              required:
+                - computing
+                - element
+                - event
+            scope:
+              type: object
+            scopeManager:
+              type: string
+              minLength: 1
+          required:
+            - measure
+            - scope
+            - scopeManager
+      required:
+        - window
+        - config
+        - parameters

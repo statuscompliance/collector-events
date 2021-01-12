@@ -1,0 +1,63 @@
+{
+    "endpoints": {
+        "github": {
+            "events": { 
+                "endpoint": "/repos/{github.repoOwner}/{github.repository}/events", 
+                "payloadDate": "created_at"
+            },
+            "mergedPR": {
+                "endpoint": "/repos/{github.repoOwner}/{github.repository}/pulls?state=closed",
+                "payloadDate": "merged_at"
+            },            
+            "closedPR": {
+                "endpoint": "/repos/{github.repoOwner}/{github.repository}/pulls?state=closed",
+                "payloadDate": "closed_at"
+            },
+            "allPR": {
+                "endpoint": "/repos/{github.repoOwner}/{github.repository}/pulls?state=all",
+                "payloadDate": "created_at"
+            },
+            "closedPRFiles": {
+                "endpoint": "/repos/{github.repoOwner}/{github.repository}/pulls?state=closed",
+                "payloadDate": "closed_at"
+            }
+        },
+        "ghwrapper": {
+            "events": { 
+                "endpoint": "/{github.repoOwner}/{github.repository}", 
+                "payloadDate": "created_at"
+            }
+        },
+        "pivotal": {
+            "activity": {
+                "endpoint": "/projects/{pivotal.projectId}/activity",
+                "payloadDate": "occurred_at"
+            }
+        },
+        "heroku": {
+            "releases": {
+                "endpoint": "/apps/{heroku.projectId}/releases",
+                "payloadDate": "created_at"
+            }
+        },
+        "travis": {
+            "builds_public": {
+                "endpoint": "/repo/{github.repoOwner}%2F{github.repository}/builds",
+                "payloadDate": "started_at"
+            },
+            "builds_private": {
+                "endpoint": "/repo/{github.repoOwner}%2F{github.repository}/builds",
+                "payloadDate": "started_at"
+            }
+        },
+        "codeclimate": {
+            "coverage": {
+                "endpoint": "/repos/[ccRepositoryId]/test_reports",
+                "payloadDate": "attributes.committed_at"
+            }
+        }
+    },
+    "substitutions": [
+        "GITHUB.REPO_OWNER->github.repoOwner"
+    ]
+}
