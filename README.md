@@ -1,5 +1,5 @@
 # Governify Events Collector
-[![Node.js CI](https://github.com/isa-group/governify-collector-events/workflows/Node.js%20CI/badge.svg?branch=master)](https://github.com/isa-group/governify-collector-events/actions)
+[![Node.js CI](https://github.com/governify/collector-events/workflows/Node.js%20CI/badge.svg?branch=master)](https://github.com/governify/collector-events/actions)
 [![Coverage Status](https://coveralls.io/repos/github/governify/collector-events/badge.svg)](https://coveralls.io/github/governify/collector-events)
 <a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-semistandard-brightgreen.svg" alt="Standard - JavaScript Style Guide"></a>
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
