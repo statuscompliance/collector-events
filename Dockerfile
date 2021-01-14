@@ -1,4 +1,4 @@
-FROM base-node-14:1.0
+FROM governify/base-node-14:1.0
 
 COPY . .
 RUN npm install --only=prod
