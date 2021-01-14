@@ -1,3 +1,12 @@
+## [1.5.2](https://github.com/governify/collector-events/compare/v1.5.1...v1.5.2) (2021-01-14)
+
+
+### Bug Fixes
+
+* dockerfile ([1f2dd83](https://github.com/governify/collector-events/commit/1f2dd8338d64fcf5817d959125ea9fc64e7c66f2))
+
+
+
 ## [1.5.1](https://github.com/governify/collector-events/compare/v1.5.0...v1.5.1) (2021-01-14)
 
 
