@@ -11,6 +11,7 @@ on:
 
 jobs:
   test:
+    name: Lint, test and coverage to coveralls
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -42,6 +43,7 @@ jobs:
       env:
         CI: true
   buildTest:
+    name: Build and push to dockerhub using develop tag
     if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
     needs: test
     runs-on: ubuntu-latest
