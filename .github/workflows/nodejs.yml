@@ -41,28 +41,6 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
       env:
         CI: true
-  buildProd:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push'}}
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to DockerHub
-        uses: docker/login-action@v1 
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: governify/collector-events:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}  
   buildTest:
     if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
     needs: test
@@ -85,3 +63,55 @@ jobs:
           tags: governify/collector-events:develop
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+  buildProdAndRelease:
+    name: Release, build and push to dockerhub using tag version
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push'}}
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2    
+      - name: Conventional Changelog
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v2
+        with:
+          github-token: ${{ secrets.github_token }}
+          output-file: 'CHANGELOG.md'
+          tag-prefix: 'v'
+          release-count: 0
+          package-json: './package.json'
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+        with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          release_name: ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
+      - name: Sync develop with main
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: "main"
+          destination_branch: "develop"
+          pr_title: "Synchronize develop with master after release ${{ steps.changelog.outputs.tag }}"
+          pr_body: ":crown:"
+          pr_reviewer: "pafmon"
+          pr_assignee: "cesgarpas"
+          pr_label: "auto-pr"                              
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: governify/collector-events:${{ steps.changelog.outputs.tag }}
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}  
