@@ -1,4 +1,13 @@
-# 1.5.0 (2021-01-14)
+## [1.5.1](https://github.com/governify/collector-events/compare/v1.5.0...v1.5.1) (2021-01-14)
+
+
+### Bug Fixes
+
+* cleaning before building ([963b0af](https://github.com/governify/collector-events/commit/963b0af2bf4121c9ccff91639f7c7b44f9a698b6))
+
+
+
+# [1.5.0](https://github.com/governify/collector-events/compare/654e676c7652e6e1b6821bbb5f7343d49d5e17af...v1.5.0) (2021-01-14)
 
 
 ### Features
