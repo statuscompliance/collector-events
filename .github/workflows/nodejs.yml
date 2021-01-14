@@ -74,7 +74,7 @@ jobs:
         id: changelog
         uses: TriPSs/conventional-changelog-action@v2
         with:
-          github-token: ${{ secrets.github_token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           output-file: 'CHANGELOG.md'
           tag-prefix: 'v'
           release-count: 0
@@ -98,6 +98,7 @@ jobs:
           pr_assignee: "cesgarpas"
           pr_label: "auto-pr"                              
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: AutoModality/action-clean@v1
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
