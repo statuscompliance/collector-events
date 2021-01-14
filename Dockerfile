@@ -1,19 +1,13 @@
-FROM node:14.3-alpine3.11
-
-# Create app directory
-WORKDIR /opt/app
-
-# Install app dependencies
-COPY package*.json ./
-
-RUN npm install
+FROM base-node-14:1.0
 
 COPY . .
+RUN npm install --only=prod
 
-# default to port 80 for node
+ARG NODE_ENV=production
+ENV NODE_ENV $NODE_ENV
+
 ARG PORT=80
 ENV PORT $PORT
 EXPOSE $PORT
-
 
 CMD [ "node", "index.js" ]
