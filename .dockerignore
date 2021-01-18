@@ -7,4 +7,5 @@ node_modules
 *.ps1
 *.cmd
 *.sh
-tests
+tests/test.js
+tests/testRequests.json
