@@ -8648,7 +8648,7 @@
     {
         "name": "Scope Manager",
         "type": "GET",
-        "requestAPI": "http://sm.bluejay.governify.io",
+        "requestAPI": "http://scopes.bluejaye2e.governify",
         "requestEndpoint": "/api/v1/scopes/development/Testing/E2ETesting",
         "response": {
             "code": 200,
