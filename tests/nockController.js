@@ -19,15 +19,15 @@ module.exports.instantiateMockups = (env) => {
       }
     } else if (env === 'e2e') {
       try {
-        buildMockups(fs.readFileSync(path.join(__dirname, '/nockMockupsE2E.json'), 'utf-8'), '/nockMockupsE2E.json', true).then(() => {
+        buildMockups(fs.readFileSync(path.join(__dirname, '/e2e/nockMockups.json'), 'utf-8'), '/e2e/nockMockups.json', true).then(() => {
           console.log("Loaded e2e mockups!");
           resolve();
         }).catch((err) => {
-          console.log('Error when building Mockups! (nockMockupsE2E.json)');
+          console.log('Error when building Mockups! (/e2e/nockMockups.json)');
           reject(err);
         });
       } catch (err) {
-        console.log('No mockups file could be found! (nockMockupsE2E.json)');
+        console.log('No mockups file could be found! (/e2e/nockMockups.json)');
         reject(err);
       }
     }
