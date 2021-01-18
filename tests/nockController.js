@@ -5,21 +5,31 @@ const path = require('path');
 module.exports.instantiateMockups = (env) => {
   return new Promise((resolve, reject) => {
     if (env === 'test') {
-      buildMockups(fs.readFileSync(path.join(__dirname, '/nockMockups.json'), 'utf-8'), '/nockMockups.json').then(() => {
-        console.log("Loaded testing mockups!");
-        resolve();
-      }).catch((err) => {
+      try {
+        buildMockups(fs.readFileSync(path.join(__dirname, '/nockMockups.json'), 'utf-8'), '/nockMockups.json').then(() => {
+          console.log("Loaded testing mockups!");
+          resolve();
+        }).catch((err) => {
+          console.log('Error when building Mockups! (nockMockups.json)');
+          reject(err);
+        });
+      } catch (err) {
         console.log('No mockups file could be found! (nockMockups.json)');
         reject(err);
-      });
+      }
     } else if (env === 'e2e') {
-      buildMockups(fs.readFileSync(path.join(__dirname, '/e2e/nockMockups.json'), 'utf-8'), '/e2e/nockMockups.json', true).then(() => {
-        console.log("Loaded e2e mockups!");
-        resolve();
-      }).catch((err) => {
-        console.log('No mockups file could be found! (e2e/nockMockups.json)');
+      try {
+        buildMockups(fs.readFileSync(path.join(__dirname, '/nockMockupsE2E.json'), 'utf-8'), '/nockMockupsE2E.json', true).then(() => {
+          console.log("Loaded e2e mockups!");
+          resolve();
+        }).catch((err) => {
+          console.log('Error when building Mockups! (nockMockupsE2E.json)');
+          reject(err);
+        });
+      } catch (err) {
+        console.log('No mockups file could be found! (nockMockupsE2E.json)');
         reject(err);
-      });
+      }
     }
   });
 };
