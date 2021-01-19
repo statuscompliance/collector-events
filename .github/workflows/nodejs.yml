@@ -42,9 +42,9 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
       env:
         CI: true
-  e2e-main:
-    name: Checkout infrastructure, install mocha and run tests (docker-compose up, mocha tests and docker-compose down)
-    if: ${{ github.ref == 'refs/heads/main' }}
+  e2eTest:
+    name: (develop) E2E - Checkout infrastructure, install mocha and run tests (docker-compose up, mocha tests and docker-compose down)
+    needs: buildTest
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -64,9 +64,10 @@ jobs:
       run: npm run test
       env:
         CI: true
-  e2e-test:
-    name: Checkout infrastructure, install mocha and run tests (docker-compose up, mocha tests and docker-compose down)
-    needs: buildTest
+  e2eMain:
+    name: (main) E2E - Checkout infrastructure, install mocha and run tests (docker-compose up, mocha tests and docker-compose down)
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -112,7 +113,7 @@ jobs:
   buildProdAndRelease:
     name: Release, build and push to dockerhub using tag version
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push'}}
-    needs: test
+    needs: e2eMain
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2    
