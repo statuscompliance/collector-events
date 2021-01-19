@@ -42,6 +42,50 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
       env:
         CI: true
+  e2e-main:
+    name: Checkout infrastructure, install mocha and run tests (docker-compose up, mocha tests and docker-compose down)
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        repository: governify/bluejay-infrastructure
+        ref: refs/heads/assets
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies 
+      run: npm ci
+    - name: Run tests
+      run: npm run test
+      env:
+        CI: true
+  e2e-test:
+    name: Checkout infrastructure, install mocha and run tests (docker-compose up, mocha tests and docker-compose down)
+    needs: buildTest
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        repository: governify/bluejay-infrastructure
+        ref: refs/heads/assets
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies 
+      run: npm ci
+    - name: Run tests
+      run: npm run test
+      env:
+        CI: true
   buildTest:
     name: Build and push to dockerhub using develop tag
     if: ${{ github.ref == 'refs/heads/develop' && github.event_name == 'push' }}
