@@ -1,3 +1,23 @@
+# [1.6.0](https://github.com/governify/collector-events/compare/v1.5.2...v1.6.0) (2021-01-19)
+
+
+### Bug Fixes
+
+* nock ([7c50ce2](https://github.com/governify/collector-events/commit/7c50ce2aa3ab3eb73aa87fbc738b7199271521b0))
+* nock controller in image ([6e85049](https://github.com/governify/collector-events/commit/6e850491744e2977c26cec86f9a8ca566a15abc9))
+* nockMockupsE2E ([f3b3553](https://github.com/governify/collector-events/commit/f3b35537c8e1e46c4abc26f8e20fe9db86e8dd9b))
+* removed json cause it is given by volume ([4c67f51](https://github.com/governify/collector-events/commit/4c67f518c5f6f91f95d4f31e9f4d1d39de1210c7))
+* reordered flow ([09006a4](https://github.com/governify/collector-events/commit/09006a4681cfb524ef73344431f10a8df3befa24))
+* sm url in e2e mockups ([bd26242](https://github.com/governify/collector-events/commit/bd2624258727d4eeb494631c84ef9716774e1edc))
+* workflow descriptions ([7d863c9](https://github.com/governify/collector-events/commit/7d863c932166959f5d94e611041ec09b313a0e07))
+
+
+### Features
+
+* e2e testing ([f8ea222](https://github.com/governify/collector-events/commit/f8ea22215cfe5ed4512c9b7df1e2a4364ad2aeaa))
+
+
+
 ## [1.5.2](https://github.com/governify/collector-events/compare/v1.5.1...v1.5.2) (2021-01-14)
 
 
