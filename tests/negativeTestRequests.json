@@ -1,0 +1,66 @@
+[
+    {
+        "name": "Unreachable scope manager",
+        "type": "POST",
+        "requestAPI": "http://event.collector.bluejay.governify.io",
+        "requestEndpoint": "/api/v2/computations",
+        "body": {
+            "metric": {
+                "computing": "string",
+                "element": "number",
+                "event": {
+                    "github": {
+                        "allPR": {
+                        }
+                    }
+                },
+                "scope": {
+                    "project": "noProject",
+                    "class": "noClass"
+                },
+                "window": {
+                    "initial": "2020-06-07T12:00:00Z",
+                    "period": "monthly",
+                    "type": "static",
+                    "end": "2020-07-05T14:00:00Z"
+                }
+            },
+            "config": {
+                "scopeManager": "http://scopemanager.unexistent/api/v1/scopes/development"
+            }
+        },
+        "errorMessage": "Failed when requesting to ScopeManager"
+    },
+    {
+        "name": "No scope found",
+        "type": "POST",
+        "requestAPI": "http://event.collector.bluejay.governify.io",
+        "requestEndpoint": "/api/v2/computations",
+        "body": {
+            "metric": {
+                "computing": "string",
+                "element": "number",
+                "event": {
+                    "github": {
+                        "allPR": {
+                        }
+                    }
+                },
+                "scope": {
+                    "project": "noProject",
+                    "class": "noClass"
+                },
+                "window": {
+                    "initial": "2020-06-07T12:00:00Z",
+                    "period": "monthly",
+                    "type": "static",
+                    "end": "2020-07-05T14:00:00Z"
+                }
+            },
+            "config": {
+                "scopeManager": "http://scopemanager.domain/api/v1/scopes/development"
+            }
+        },
+        "errorMessage": "Project scope not found.\nProjectScopeId: noProject, ClassScopeId: noClass"
+    }
+]

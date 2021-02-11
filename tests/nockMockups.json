@@ -79,6 +79,16 @@
     }
   },
   {
+    "name": "Scope Manager noProject",
+    "type": "GET",
+    "requestAPI": "http://scopemanager.domain",
+    "requestEndpoint": "/api/v1/scopes/development/noClass/noProject",
+    "response": {
+      "code": 404,
+      "message": "Scope not found"
+    }
+  },
+  {
     "name": "Heroku",
     "type": "GET",
     "requestAPI": "https://api.heroku.com",
