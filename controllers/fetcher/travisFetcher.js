@@ -59,23 +59,32 @@ const getDataPaginated = (url, token, to, offset = 0) => {
       }
     } else {
       fetcherUtils.requestWithHeaders(requestUrl, { Authorization: token, 'Travis-API-Version': 3 }).then((data) => {
-        if (data.error_message) {
-          reject(Error('Travis API response: ' + data.error_message));
-        }
-        const pagination = data['@pagination'];
-        // Finds the dataArray
-        let arrayName = '';
-        Object.keys(data).forEach(x => { if (!x.includes('@')) arrayName = x; });
+        if (data['@type'] === 'error') {
+          console.log('Problem when requesting PT payload:\n', data);
 
-        // Resolves Data recursing if needed
-        if (pagination.offset + pagination.limit < pagination.count) {
-          cacheData(data, requestUrl, to);
-          getDataPaginated(url, token, to, offset + pagination.limit).then(recData => {
-            resolve(data[arrayName].concat(recData));
-          }).catch((err) => { reject(err); });
+          if (data.error_type === 'not_found') {
+            reject(Error('Non existent or unauthorized access to Travis repo. URL: ' + requestUrl));
+          } else {
+            reject(Error('Unknown problem when requesting to Travis. URL: ' + requestUrl));
+          }
+        } else if (data === 'access denied') {
+          reject(Error('No travis token or invalid one was given. URL: ' + requestUrl));
         } else {
-          cacheData(data, requestUrl, to);
-          resolve(data[arrayName]);
+          const pagination = data['@pagination'];
+          // Finds the dataArray
+          let arrayName = '';
+          Object.keys(data).forEach(x => { if (!x.includes('@')) arrayName = x; });
+
+          // Resolves Data recursing if needed
+          if (pagination.offset + pagination.limit < pagination.count) {
+            cacheData(data, requestUrl, to);
+            getDataPaginated(url, token, to, offset + pagination.limit).then(recData => {
+              resolve(data[arrayName].concat(recData));
+            }).catch((err) => { reject(err); });
+          } else {
+            cacheData(data, requestUrl, to);
+            resolve(data[arrayName]);
+          }
         }
       }).catch((err) => { reject(err); });
     }

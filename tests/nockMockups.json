@@ -45055,7 +45055,7 @@
     }
   },
   {
-    "name": "Heroku - No token given",
+    "name": "Heroku - No valid token given",
     "type": "GET",
     "requestAPI": "https://api.heroku.com",
     "requestEndpoint": "/apps/HEROKU_UNAUTHORIZED_PROJECT_ID/builds",
@@ -45063,5 +45063,36 @@
       "id": "unauthorized",
       "message": "There were no credentials in your `Authorization` header. Try `Authorization: Bearer <OAuth access token>` or `Authorization: Basic <base64-encoded email + \":\" + password>`."
     }
+  },
+  {
+    "name": "Travis - Non existent project",
+    "type": "GET",
+    "requestAPI": "https://api.travis-ci.org",
+    "requestEndpoint": "/repo/nonexistent%2Fnonexistent/builds?limit=100&offset=0",
+    "response": {
+      "@type": "error",
+      "error_type": "not_found",
+      "error_message": "repository not found (or insufficient access)",
+      "resource_type": "repository"
+    }
+  },
+  {
+    "name": "Travis - Unauthorized project",
+    "type": "GET",
+    "requestAPI": "https://api.travis-ci.com",
+    "requestEndpoint": "/repo/unauthorized%2Funauthorized/builds?limit=100&offset=0",
+    "response": {
+      "@type": "error",
+      "error_type": "not_found",
+      "error_message": "repository not found (or insufficient access)",
+      "resource_type": "repository"
+    }
+  },
+  {
+    "name": "Travis - No valid token given",
+    "type": "GET",
+    "requestAPI": "https://api.travis-ci.com",
+    "requestEndpoint": "/repo/nonexistent%2Fnonexistent/builds?limit=100&offset=0",
+    "response": "access denied"
   }
 ]
