@@ -384,5 +384,37 @@
             }
         },
         "errorMessage": "No travis token or invalid one was given. URL: https://api.travis-ci.com/repo/nonexistent%2Fnonexistent/builds?limit=100&offset=0"
+    },
+    {
+        "name": "CC - Non existing or unauthorized project",
+        "type": "POST",
+        "requestAPI": "http://event.collector.bluejay.governify.io",
+        "requestEndpoint": "/api/v2/computations",
+        "body": {
+            "metric": {
+                "computing": "string",
+                "element": "number",
+                "event": {
+                    "codeclimate": {
+                        "coverage": {
+                        }
+                    }
+                },
+                "scope": {
+                    "project": "WrongProject",
+                    "class": "NegativeCourse"
+                },
+                "window": {
+                    "initial": "2020-06-07T12:00:00Z",
+                    "period": "monthly",
+                    "type": "static",
+                    "end": "2020-07-05T14:00:00Z"
+                }
+            },
+            "config": {
+                "scopeManager": "http://scopemanager.domain/api/v1/scopes/development"
+            }
+        },
+        "errorMessage": "No CC project found or unauthorized. URL: https://api.codeclimate.com/v1/repos?github_slug=nonexistent/nonexistent"
     }
 ]

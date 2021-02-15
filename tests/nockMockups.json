@@ -45094,5 +45094,23 @@
     "requestAPI": "https://api.travis-ci.com",
     "requestEndpoint": "/repo/nonexistent%2Fnonexistent/builds?limit=100&offset=0",
     "response": "access denied"
+  },
+  {
+    "name": "CC - Non existent project ",
+    "type": "GET",
+    "requestAPI": "https://api.codeclimate.com",
+    "requestEndpoint": "/v1/repos?github_slug=nonexistent/nonexistent",
+    "response": {
+      "data": []
+    }
+  },
+  {
+    "name": "CC - Unauthorized project",
+    "type": "GET",
+    "requestAPI": "https://api.codeclimate.com",
+    "requestEndpoint": "/v1/repos?github_slug=unauthorized/unauthorized",
+    "response": {
+      "data": []
+    }
   }
 ]
