@@ -14,7 +14,7 @@ const getInfo = (options) => {
     getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {
       fetcherUtils.applyFilters(data, options.from, options.to, options.mustMatch, options.endpointType, eventType).then((filteredData) => {
         resolve(filteredData);
-      });
+      }).catch(err => reject(err));
     }).catch(err => reject(err));
   });
 };

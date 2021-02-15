@@ -69,7 +69,7 @@ const getDataPaginated = (url, token, offset = 0) => {
           requestCache[requestUrl] = [];
           resolve([]);
         }
-      });
+      }).catch(err => reject(err));
     }
   });
 };

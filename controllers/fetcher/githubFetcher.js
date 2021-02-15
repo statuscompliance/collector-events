@@ -58,7 +58,7 @@ const getInfo = (options) => {
                 eventType
               ).then(finalResult => {
                 resolve(finalResult);
-              });
+              }).catch(err => reject(err));
             } else {
               resolve(result);
             }
