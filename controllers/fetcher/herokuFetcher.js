@@ -5,8 +5,8 @@ const fetcherUtils = require('./fetcherUtils');
 const apiUrl = 'https://api.heroku.com';
 const eventType = 'heroku';
 
-let requestCacheUrl = {};
-let cacheDateUrl = {};
+const requestCacheUrl = {};
+const cacheDateUrl = {};
 
 // Function who controls the script flow
 const getInfo = (options) => {
