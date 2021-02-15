@@ -18,11 +18,11 @@ module.exports.findComputationBycomputationId = function findComputationBycomput
       }
     }).catch(err => {
       console.log('error - findComputationById.getComputation:\n' + err);
-      sendWithStatus(res, 500, 'Internal server error.');
+      sendWithStatus(res, 500, 'Internal server error.', []);
     });
   } catch (err) {
     console.log('error - findComputationById:\n' + err);
-    sendWithStatus(res, 500, 'Internal server error.');
+    sendWithStatus(res, 500, 'Internal server error.', []);
   }
 };
 

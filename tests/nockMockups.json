@@ -79,16 +79,6 @@
     }
   },
   {
-    "name": "Scope Manager noProject",
-    "type": "GET",
-    "requestAPI": "http://scopemanager.domain",
-    "requestEndpoint": "/api/v1/scopes/development/noClass/noProject",
-    "response": {
-      "code": 404,
-      "message": "Scope not found"
-    }
-  },
-  {
     "name": "Heroku",
     "type": "GET",
     "requestAPI": "https://api.heroku.com",
@@ -44915,6 +44905,142 @@
         }
       ],
       "links": {}
+    }
+  },
+  {
+    "name": "Scope Manager nonexistent",
+    "type": "GET",
+    "requestAPI": "http://scopemanager.domain",
+    "requestEndpoint": "/api/v1/scopes/development/NegativeCourse/WrongProject",
+    "response": {
+      "code": 200,
+      "message": "Scope returned",
+      "scope": {
+        "projectId": "WrongProject",
+        "identities": [
+          {
+            "source": "github",
+            "repository": "nonexistent",
+            "repoOwner": "nonexistent"
+          },
+          {
+            "source": "pivotal",
+            "projectId": 0
+          },
+          {
+            "source": "heroku",
+            "projectId": "HEROKU_NONEXISTENT_PROJECT_ID"
+          },
+          {
+            "source": "travis"
+          },
+          {
+            "source": "codeclimate"
+          }
+        ],
+        "credentials": [],
+        "members": []
+      }
+    }
+  },
+  {
+    "name": "Scope Manager unauthorized",
+    "type": "GET",
+    "requestAPI": "http://scopemanager.domain",
+    "requestEndpoint": "/api/v1/scopes/development/NegativeCourse/UnauthorizedProject",
+    "response": {
+      "code": 200,
+      "message": "Scope returned",
+      "scope": {
+        "projectId": "UnauthorizedProject",
+        "identities": [
+          {
+            "source": "github",
+            "repository": "unauthorized",
+            "repoOwner": "unauthorized"
+          },
+          {
+            "source": "pivotal",
+            "projectId": 1234
+          },
+          {
+            "source": "heroku",
+            "projectId": "HEROKU_UNAUTHORIZED_PROJECT_ID"
+          },
+          {
+            "source": "travis"
+          },
+          {
+            "source": "codeclimate"
+          }
+        ],
+        "credentials": [],
+        "members": []
+      }
+    }
+  },
+  {
+    "name": "Scope Manager noProject",
+    "type": "GET",
+    "requestAPI": "http://scopemanager.domain",
+    "requestEndpoint": "/api/v1/scopes/development/noClass/noProject",
+    "response": {
+      "code": 404,
+      "message": "Scope not found"
+    }
+  },
+  {
+    "name": "GitHub - Non existent project",
+    "type": "GET",
+    "requestAPI": "https://api.github.com",
+    "requestEndpoint": "/repos/nonexistent/nonexistent/events?page=1",
+    "response": {
+      "message": "Not Found",
+      "documentation_url": "https://docs.github.com/rest/reference/activity#list-repository-events"
+    }
+  },
+  {
+    "name": "GitHub - Unauthorized project",
+    "type": "GET",
+    "requestAPI": "https://api.github.com",
+    "requestEndpoint": "/repos/unauthorized/unauthorized/events?page=1",
+    "response": {
+      "message": "Not Found",
+      "documentation_url": "https://docs.github.com/rest/reference/activity#list-repository-events"
+    }
+  },
+  {
+    "name": "Pivotal - Non existent project",
+    "type": "GET",
+    "requestAPI": "https://www.pivotaltracker.com",
+    "requestEndpoint": "/services/v5/projects/0/activity?limit=100&offset=0",
+    "response": {
+      "code": "unfound_resource",
+      "kind": "error",
+      "error": "The object you tried to access could not be found.  It may have been removed by another user, you may be using the ID of another object type, or you may be trying to access a sub-resource at the wrong point in a tree."
+    }
+  },
+  {
+    "name": "Pivotal - Unauthorized project",
+    "type": "GET",
+    "requestAPI": "https://www.pivotaltracker.com",
+    "requestEndpoint": "/services/v5/projects/1234/activity?limit=100&offset=0",
+    "response": {
+      "code": "unauthorized_operation",
+      "kind": "error",
+      "error": "Authorization failure.",
+      "general_problem": "You aren't authorized to access the requested resource.",
+      "possible_fix": "Your project permissions are determined on the Project Membership page. If you are receiving this error you may be trying to access the wrong project, or the project API access is disabled, or someone listed as the project's Owner needs to change your membership type."
+    }
+  },
+  {
+    "name": "Heroku",
+    "type": "GET",
+    "requestAPI": "https://api.heroku.com",
+    "requestEndpoint": "/apps/HEROKU_UNAUTHORIZED_PROJECT_ID/releases",
+    "response": {
+      "id": "unauthorized",
+      "message": "There were no credentials in your `Authorization` header. Try `Authorization: Bearer <OAuth access token>` or `Authorization: Basic <base64-encoded email + \":\" + password>`."
     }
   }
 ]

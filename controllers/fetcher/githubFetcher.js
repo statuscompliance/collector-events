@@ -32,6 +32,8 @@ const getInfo = (options) => {
                   closedPRFiles[0].closed_at = closedPR.closed_at; // Add the date for the matches
                   result.push(closedPRFiles[0]);
                   resolve();
+                }).catch(err => {
+                  reject(err);
                 });
               } catch (err) {
                 reject(err);
@@ -67,6 +69,8 @@ const getInfo = (options) => {
           resolve(filteredData);
         }
       });
+    }).catch(err => {
+      reject(err);
     });
   });
 };
@@ -94,6 +98,12 @@ const getDataPaginated = (url, token, to, page = 1) => {
           getDataPaginated(url, token, to, page + 1).then(recData => {
             resolve(data.concat(recData));
           }).catch((err) => { reject(err); });
+        } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
+          if (data.message === 'Not Found') {
+            reject(new Error('GitHub project not found or unauthorized. URL: ' + requestUrl));
+          } else {
+            reject(new Error('Problem when requesting to GitHub. URL: ' + requestUrl));
+          }
         } else {
           cacheData([], requestUrl, to);
           resolve([]);

@@ -62,5 +62,135 @@
             }
         },
         "errorMessage": "Project scope not found.\nProjectScopeId: noProject, ClassScopeId: noClass"
+    },
+    {
+        "name": "GitHub - Non existing project",
+        "type": "POST",
+        "requestAPI": "http://event.collector.bluejay.governify.io",
+        "requestEndpoint": "/api/v2/computations",
+        "body": {
+            "metric": {
+                "computing": "string",
+                "element": "number",
+                "event": {
+                    "github": {
+                        "events": {
+                        }
+                    }
+                },
+                "scope": {
+                    "project": "WrongProject",
+                    "class": "NegativeCourse"
+                },
+                "window": {
+                    "initial": "2020-06-07T12:00:00Z",
+                    "period": "monthly",
+                    "type": "static",
+                    "end": "2020-07-05T14:00:00Z"
+                }
+            },
+            "config": {
+                "scopeManager": "http://scopemanager.domain/api/v1/scopes/development"
+            }
+        },
+        "errorMessage": "GitHub project not found or unauthorized. URL: https://api.github.com/repos/nonexistent/nonexistent/events?page=1"
+    },
+    {
+        "name": "GitHub - Unathorized request project",
+        "type": "POST",
+        "requestAPI": "http://event.collector.bluejay.governify.io",
+        "requestEndpoint": "/api/v2/computations",
+        "body": {
+            "metric": {
+                "computing": "string",
+                "element": "number",
+                "event": {
+                    "github": {
+                        "events": {
+                        }
+                    }
+                },
+                "scope": {
+                    "project": "UnauthorizedProject",
+                    "class": "NegativeCourse"
+                },
+                "window": {
+                    "initial": "2020-06-07T12:00:00Z",
+                    "period": "monthly",
+                    "type": "static",
+                    "end": "2020-07-05T14:00:00Z"
+                }
+            },
+            "config": {
+                "scopeManager": "http://scopemanager.domain/api/v1/scopes/development"
+            }
+        },
+        "errorMessage": "GitHub project not found or unauthorized. URL: https://api.github.com/repos/unauthorized/unauthorized/events?page=1"
+    },
+    {
+        "name": "PT - Non existing project",
+        "type": "POST",
+        "requestAPI": "http://event.collector.bluejay.governify.io",
+        "requestEndpoint": "/api/v2/computations",
+        "body": {
+            "metric": {
+                "computing": "string",
+                "element": "number",
+                "event": {
+                    "pivotal": {
+                        "activity": {
+                            "highlight": "started"
+                        }
+                    }
+                },
+                "scope": {
+                    "project": "WrongProject",
+                    "class": "NegativeCourse"
+                },
+                "window": {
+                    "initial": "2020-01-21T12:00:00.000Z",
+                    "period": "daily",
+                    "type": "static",
+                    "end": "2020-01-22T12:00:00.000Z"
+                }
+            },
+            "config": {
+                "scopeManager": "http://scopemanager.domain/api/v1/scopes/development"
+            }
+        },
+        "errorMessage": "PT project not found. URL: https://www.pivotaltracker.com/services/v5/projects/0/activity?limit=100&offset=0"
+    },
+    {
+        "name": "PT - Unathorized request project",
+        "type": "POST",
+        "requestAPI": "http://event.collector.bluejay.governify.io",
+        "requestEndpoint": "/api/v2/computations",
+        "body": {
+            "metric": {
+                "computing": "string",
+                "element": "number",
+                "event": {
+                    "pivotal": {
+                        "activity": {
+                            "highlight": "started"
+                        }
+                    }
+                },
+                "scope": {
+                    "project": "UnauthorizedProject",
+                    "class": "NegativeCourse"
+                },
+                "window": {
+                    "initial": "2020-01-21T12:00:00.000Z",
+                    "period": "daily",
+                    "type": "static",
+                    "end": "2020-01-22T12:00:00.000Z"
+                }
+            },
+            "config": {
+                "scopeManager": "http://scopemanager.domain/api/v1/scopes/development"
+            }
+        },
+        "errorMessage": "Unauthorized access to PT project. URL: https://www.pivotaltracker.com/services/v5/projects/1234/activity?limit=100&offset=0"
     }
 ]

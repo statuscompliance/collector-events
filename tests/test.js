@@ -156,6 +156,8 @@ function apiRestNegativeControllersTest() {
 
           getComputationV2(options.url, 20000).then(errorMessage => {
             try {
+              console.log("\n-------------------------------\nError Message:");
+              console.log(errorMessage);
               assert.strictEqual(typeof errorMessage, typeof '');
               assert.strictEqual(errorMessage, testRequest.errorMessage);
               done();
