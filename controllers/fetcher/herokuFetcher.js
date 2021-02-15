@@ -5,8 +5,8 @@ const fetcherUtils = require('./fetcherUtils');
 const apiUrl = 'https://api.heroku.com';
 const eventType = 'heroku';
 
-let requestCache;
-let cacheDate;
+let requestCacheUrl = {};
+let cacheDateUrl = {};
 
 // Function who controls the script flow
 const getInfo = (options) => {
@@ -44,15 +44,16 @@ const getDataPaginated = (url, token, to) => { // TODO - Paginate heroku data
 
     resolve(allData); */
 
-    const cached = requestCache;
+    const cached = requestCacheUrl[url];
+    const cacheDate = cacheDateUrl[url];
     if (cached !== undefined && cacheDate !== undefined && Date.parse(to) < Date.parse(cacheDate)) { resolve(cached); } else {
       fetcherUtils.requestWithHeaders(url, {
         Authorization: token,
         Accept: 'application/vnd.heroku+json; version=3'
       }).then((data) => {
         if (data.length && data.length !== 0) {
-          requestCache = data;
-          cacheDate = new Date().toISOString();
+          requestCacheUrl[url] = data;
+          cacheDateUrl[url] = new Date().toISOString();
           resolve(data);
         } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
           console.log('Problem when requesting Heroku payload:\n', data);
@@ -67,8 +68,8 @@ const getDataPaginated = (url, token, to) => { // TODO - Paginate heroku data
             reject(new Error('Unkown Heroku problem. URL: ' + url));
           }
         } else {
-          requestCache = data;
-          cacheDate = new Date().toISOString();
+          requestCacheUrl[url] = data;
+          cacheDateUrl[url] = new Date().toISOString();
           resolve(data);
         }
       }).catch(err => reject(err));
