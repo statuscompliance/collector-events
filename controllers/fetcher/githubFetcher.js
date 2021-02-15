@@ -68,7 +68,7 @@ const getInfo = (options) => {
         } else {
           resolve(filteredData);
         }
-      });
+      }).catch(err => reject(err));
     }).catch(err => {
       reject(err);
     });
@@ -99,6 +99,8 @@ const getDataPaginated = (url, token, to, page = 1) => {
             resolve(data.concat(recData));
           }).catch((err) => { reject(err); });
         } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
+          console.log('Problem when requesting GH payload:\n', data);
+
           if (data.message === 'Not Found') {
             reject(new Error('GitHub project not found or unauthorized. URL: ' + requestUrl));
           } else {

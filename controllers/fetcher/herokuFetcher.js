@@ -15,7 +15,7 @@ const getInfo = (options) => {
       fetcherUtils.applyFilters(data, options.from, options.to, options.mustMatch, options.endpointType, eventType).then((filteredData) => {
         resolve(filteredData);
       });
-    });
+    }).catch(err => reject(err));
   });
 };
 
@@ -50,10 +50,28 @@ const getDataPaginated = (url, token, to) => { // TODO - Paginate heroku data
         Authorization: token,
         Accept: 'application/vnd.heroku+json; version=3'
       }).then((data) => {
-        requestCache = data;
-        cacheDate = new Date().toISOString();
-        resolve(data);
-      });
+        if (data.length && data.length !== 0) {
+          requestCache = data;
+          cacheDate = new Date().toISOString();
+          resolve(data);
+        } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
+          console.log('Problem when requesting Heroku payload:\n', data);
+
+          if (data.id === 'not_found') {
+            reject(new Error('Heroku app not found. URL: ' + url));
+          } else if (data.id === 'forbidden') {
+            reject(new Error('Unauthorized access to Heroku app. URL: ' + url));
+          } else if (data.id === 'unauthorized') {
+            reject(new Error('No Heroku token or expired one was given. URL: ' + url));
+          } else {
+            reject(new Error('Unkown Heroku problem. URL: ' + url));
+          }
+        } else {
+          requestCache = data;
+          cacheDate = new Date().toISOString();
+          resolve(data);
+        }
+      }).catch(err => reject(err));
     }
   });
 };

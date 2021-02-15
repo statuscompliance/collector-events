@@ -38,6 +38,10 @@
             "releases": {
                 "endpoint": "/apps/{heroku.projectId}/releases",
                 "payloadDate": "created_at"
+            },
+            "builds": {
+                "endpoint": "/apps/{heroku.projectId}/builds",
+                "payloadDate": "created_at"
             }
         },
         "travis": {
