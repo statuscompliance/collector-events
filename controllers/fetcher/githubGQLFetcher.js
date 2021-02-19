@@ -10,15 +10,53 @@ const apiUrl = 'https://api.github.com';
 
 // Function who controls the script flow
 const getInfo = (options) => {
-  return new Promise((resolve, reject) => {
-    getDataPaginated(options.query, options.token, options.match.location).then((data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let resultData;
+      for (const stepNumber of Object.keys(options.steps)) {
+        console.log(stepNumber)
+        const step = options.steps[stepNumber];
+        if (step.type === "query") {
+          await new Promise((resolve, reject) => {
+            getDataPaginated(step.query, options.token).then(data => {
+              resultData = data;
+              resolve()
+            }).catch(err => {
+              reject(err)
+            })
+          });
+        } else if (step.type === "objectGetSubObject" || step.type === "objectGetSubObjects") {
+          resultData = getSubObject(resultData, step.location);
+        } else if (step.type === "objectsFilterObject" || step.type === "objectsFilterObjects") {
+          resultData = getMatches(resultData, step.filters);
+          if (step.type === "objectsFilterObject") {
+            switch (step.keep) {
+              case "first": resultData = resultData[0]; break;
+              case "last": resultData = resultData[resultData.length - 1]; break;
+              case "min": resultData = resultData.sort()[0]; break;
+              case "max": resultData = resultData.sort()[resultData.length - 1]; break;
+              case "sum": resultData = resultData.reduce((a, b) => a + b); break;
+              case "avg": resultData = resultData.reduce((a, b) => a + b) / resultData.length; break;
+              default:
+            }
+          }
+        }
+        console.log("Step", stepNumber, JSON.stringify(resultData, null, 4))
+      }
+      resolve(resultData);
+    } catch (err) {
+      reject(err)
+    }
+
+
+    /* getDataPaginated(options.query, options.token, options.match.location).then((data) => {
       const matches = getMatches(data, options.match.filters);
       console.log(matches);
       resolve(matches);
     }).catch(err => {
       console.log(err);
       resolve(new Error('Failed when fetching to github.'));
-    });
+    }); */
 
     /* getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {
       fetcherUtils.applyFilters(
@@ -85,10 +123,10 @@ const getInfo = (options) => {
 };
 
 // Paginates github data to retrieve everything
-const getDataPaginated = (query, token, objectsLocation) => {
+const getDataPaginated = (query, token) => {
   return new Promise((resolve, reject) => {
     fetcherUtils.requestWithHeaders(apiUrl + '/graphql', { Authorization: token }, { query: query }).then((data) => {
-      resolve(getSubObject(data, objectsLocation));
+      resolve(data);
     }).catch(err => {
       console.log(err);
       resolve(new Error('Failed when fetching to github.'));
@@ -133,6 +171,43 @@ const getDataPaginated = (query, token, objectsLocation) => {
 
 const getMatches = (objects, filters) => {
   try {
+    const matches = [];
+
+    for (const object of objects) {
+      let matched = true;
+      for (const filter of filters) {
+        const splitted = filter.split('==');
+        const filterObjectLocation = splitted[0].replace(/'/gm, '').replace(/ /gm, '')
+        const filterMustMatch = splitted[1].split("'")[1]
+
+        if (filterObjectLocation.includes('*any*')) {
+          let matched2 = false;
+          const splitted2 = filterObjectLocation.split('.*any*.');
+          for (const object2 of getSubObject(object, splitted2[0])) {
+            if (getSubObject(object2, splitted2[1]) === filterMustMatch) {
+              matched2 = true;
+              break;
+            }
+          }
+          matched = matched2;
+        } else if (getSubObject(object, filterObjectLocation) !== filterMustMatch) {
+          matched = false;
+        }
+
+        if(!matched) {
+          break;
+        }
+      }
+      matched && matches.push(object);
+    }
+    return matches;
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
+/* const getMatches = (objects, filters) => {
+  try {
     console.log(filters);
     console.log('hey');
     const matches = [];
@@ -153,7 +228,7 @@ const getMatches = (objects, filters) => {
     console.log(err);
     return [];
   }
-};
+}; */
 
 /* const cacheData = (data, requestUrl, to) => {
   if (cacheDate !== undefined && Date.parse(to) < Date.parse(cacheDate)) { requestCache[requestUrl] = data; } else {

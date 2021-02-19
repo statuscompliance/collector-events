@@ -220,12 +220,12 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
       if (endpointType === 'custom') {
         if (json[eventType].custom.type === 'graphQL') {
           const steps = JSON.parse(JSON.stringify(json[eventType].custom.steps));
-          
+
           // Substitute match filters with member
           if (member) {
             const memberRegex = /%MEMBER\.[a-zA-Z0-9.]+%/g;
-            // For each step that its type is filter
-            for (const stepKey of Object.keys(steps).filter(stepKeyElement => steps[stepKeyElement].type === "filter")) {
+            // For each step that its type is objectsFilterObject or objectsFilterObjects
+            for (const stepKey of Object.keys(steps).filter(stepKeyElement => ["objectsFilterObject", "objectsFilterObjects"].includes(steps[stepKeyElement].type))) {
               const newFilters = [];
               // For each filter with a regex match
               for (let filter of steps[stepKey].filters.filter(filterElement => memberRegex.test(filterElement))) {
@@ -240,11 +240,9 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                 
                 newFilters.push(filter);
               }
-              // Add non matching filters
-              newFilters.push(steps[stepKey].filters.filter(filterElement => !memberRegex.test(filterElement)));
 
-              // Replace substituted filters with the new filters
-              steps[stepKey].filters = newFilters;
+              // Replace substituted filters with the new filters and the non substituted ones
+              steps[stepKey].filters = newFilters.concat(steps[stepKey].filters.filter(filterElement => !memberRegex.test(filterElement)));
             }
           }
 
