@@ -219,42 +219,43 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
       const endpointType = Object.keys(json[eventType])[0];
       if (endpointType === 'custom') {
         if (json[eventType].custom.type === 'graphQL') {
-          const query = json[eventType].custom.query;
-          const match = JSON.parse(JSON.stringify(json[eventType].custom.match));
-          const steps = Object.keys(match);
-
-          // Substitute filters with member
+          const steps = JSON.parse(JSON.stringify(json[eventType].custom.steps));
+          
+          // Substitute match filters with member
           if (member) {
-            for (const step of steps) {
-              const memberRegex = /%MEMBER\.[a-zA-Z0-9.]+%/g;
+            const memberRegex = /%MEMBER\.[a-zA-Z0-9.]+%/g;
+            // For each step that its type is filter
+            for (const stepKey of Object.keys(steps).filter(stepKeyElement => steps[stepKeyElement].type === "filter")) {
               const newFilters = [];
-              for (let filter of match[step].filters) {
-                if (memberRegex.test(filter)) {
-                  const matches = filter.match(memberRegex);
-                  for (const matchString of matches) {
-                    const splitted = matchString.replace(/%/g, '').replace('MEMBER.', '').split('.');
+              // For each filter with a regex match
+              for (let filter of steps[stepKey].filters.filter(filterElement => memberRegex.test(filterElement))) {
+                  // For each regex match in the filter
+                  for (const regexMatch of filter.match(memberRegex)) {
+                    const splitted = regexMatch.replace(/%/g, '').replace('MEMBER.', '').split('.');
                     const identity = member.identities.filter(e => e.source === splitted[0])[0];
                     if (identity) {
-                      filter = filter.replace(matchString, identity[splitted[1]]);
+                      filter = filter.replace(regexMatch, identity[splitted[1]]);
                     }
                   }
-                }
+                
                 newFilters.push(filter);
               }
-              match[step].filters = newFilters;
+              // Add non matching filters
+              newFilters.push(steps[stepKey].filters.filter(filterElement => !memberRegex.test(filterElement)));
+
+              // Replace substituted filters with the new filters
+              steps[stepKey].filters = newFilters;
             }
           }
 
-          console.log(JSON.stringify(match, null, 4));
+          console.log(JSON.stringify(steps, null, 4));
 
           githubGQLFetcher
             .getInfo({
               from: from,
               to: to,
-              githubIdentities: integrations.github,
               token: generateToken(integrations.github.apiKey, authKeys.github, 'token '),
-              query: query,
-              match: match
+              steps: steps
             })
             .then((data) => {
               resolve(data);
