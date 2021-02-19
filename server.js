@@ -6,6 +6,7 @@ const deploy = (env) => {
       var fs = require('fs');
       var http = require('http');
       var path = require('path');
+      require('dotenv').config();
 
       var express = require('express');
       var app = express();

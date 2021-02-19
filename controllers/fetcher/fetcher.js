@@ -1,6 +1,7 @@
 'use strict';
 
 const githubFetcher = require('./githubFetcher');
+const githubGQLFetcher = require('./githubGQLFetcher');
 const ghwrapperFetcher = require('./ghwrapperFetcher');
 const pivotalFetcher = require('./pivotalFetcher');
 const herokuFetcher = require('./herokuFetcher');
@@ -216,115 +217,164 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
     try {
       const eventType = Object.keys(json)[0];
       const endpointType = Object.keys(json[eventType])[0];
+      if (endpointType === 'custom') {
+        if (json[eventType].custom.type === 'graphQL') {
+          const query = json[eventType].custom.query;
+          const match = JSON.parse(JSON.stringify(json[eventType].custom.match));
+          const steps = Object.keys(match);
 
-      // Endpoint generation from endpoints.json
-      const endpoint = sourcesManager.getEndpoint(eventType, endpointType, integrations);
-      if (endpoint === undefined) {
-        reject(new Error('There was a problem getting the endpoint.'));
-      } else {
-        // Replace each %% needed to be replaced with an integration
-        const mustMatch = sourcesManager.getMustMatch(json[eventType][endpointType], integrations, member);
-        if (mustMatch === undefined) {
-          reject(new Error('There was a problem getting the mustMatch.'));
+          // Substitute filters with member
+          if (member) {
+            for (const step of steps) {
+              const memberRegex = /%MEMBER\.[a-zA-Z0-9.]+%/g;
+              const newFilters = [];
+              for (let filter of match[step].filters) {
+                if (memberRegex.test(filter)) {
+                  const matches = filter.match(memberRegex);
+                  for (const matchString of matches) {
+                    const splitted = matchString.replace(/%/g, '').replace('MEMBER.', '').split('.');
+                    const identity = member.identities.filter(e => e.source === splitted[0])[0];
+                    if (identity) {
+                      filter = filter.replace(matchString, identity[splitted[1]]);
+                    }
+                  }
+                }
+                newFilters.push(filter);
+              }
+              match[step].filters = newFilters;
+            }
+          }
+
+          console.log(JSON.stringify(match, null, 4));
+
+          githubGQLFetcher
+            .getInfo({
+              from: from,
+              to: to,
+              githubIdentities: integrations.github,
+              token: generateToken(integrations.github.apiKey, authKeys.github, 'token '),
+              query: query,
+              match: match
+            })
+            .then((data) => {
+              resolve(data);
+            }).catch(err => {
+              reject(err);
+            });
         } else {
-          switch (eventType) {
-            case 'pivotal':
-              pivotalFetcher
-                .getInfo({
-                  from: from,
-                  to: to,
-                  token: generateToken(integrations.pivotal.apiKey, authKeys.pivotal, ''),
-                  endpoint: endpoint,
-                  endpointType: endpointType,
-                  mustMatch: mustMatch
-                })
-                .then((data) => {
-                  resolve(data);
-                }).catch(err => {
-                  reject(err);
-                });
-              break;
-            case 'github':
-              githubFetcher
-                .getInfo({
-                  from: from,
-                  to: to,
-                  token: generateToken(integrations.github.apiKey, authKeys.github, 'token '),
-                  endpoint: endpoint,
-                  endpointType: endpointType,
-                  mustMatch: mustMatch
-                })
-                .then((data) => {
-                  resolve(data);
-                }).catch(err => {
-                  reject(err);
-                });
-              break;
-            case 'ghwrapper':
-              ghwrapperFetcher
-                .getInfo({
-                  from: from,
-                  to: to,
-                  endpoint: endpoint,
-                  endpointType: endpointType,
-                  mustMatch: mustMatch
-                })
-                .then((data) => {
-                  resolve(data);
-                }).catch(err => {
-                  reject(err);
-                });
-              break;
-            case 'heroku':
-              herokuFetcher
-                .getInfo({
-                  from: from,
-                  to: to,
-                  token: generateToken(integrations.heroku.apiKey, authKeys.heroku, 'Bearer '),
-                  endpoint: endpoint,
-                  endpointType: endpointType,
-                  mustMatch: mustMatch
-                })
-                .then((data) => {
-                  resolve(data);
-                }).catch(err => {
-                  reject(err);
-                });
-              break;
-            case 'travis':
-              travisFetcher
-                .getInfo({
-                  from: from,
-                  to: to,
-                  token: generateToken(integrations.travis.apiKey, authKeys.travis, 'token '),
-                  endpoint: endpoint,
-                  endpointType: endpointType,
-                  mustMatch: mustMatch,
-                  public: endpointType.split('_')[1] === 'public'
-                })
-                .then((data) => {
-                  resolve(data);
-                }).catch(err => {
-                  reject(err);
-                });
-              break;
-            case 'codeclimate':
-              codeclimateFetcher
-                .getInfo({
-                  from: from,
-                  to: to,
-                  token: generateToken(integrations.codeclimate.apikey, authKeys.codeclimate, 'Token token='),
-                  endpoint: endpoint,
-                  endpointType: endpointType,
-                  mustMatch: mustMatch,
-                  githubSlug: integrations.github.repoOwner + '/' + integrations.github.repository
-                })
-                .then((data) => {
-                  resolve(data);
-                }).catch(err => {
-                  reject(err);
-                });
-              break;
+          console.log('Custom request type not valid: ' + json[eventType].custom.type);
+          resolve([]);
+        }
+      } else {
+        // Endpoint generation from endpoints.json
+        const endpoint = sourcesManager.getEndpoint(eventType, endpointType, integrations);
+        if (endpoint === undefined) {
+          reject(new Error('There was a problem getting the endpoint.'));
+        } else {
+          // Replace each %% needed to be replaced with an integration
+          const mustMatch = sourcesManager.getMustMatch(json[eventType][endpointType], integrations, member);
+          if (mustMatch === undefined) {
+            reject(new Error('There was a problem getting the mustMatch.'));
+          } else {
+            switch (eventType) {
+              case 'pivotal':
+                pivotalFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.pivotal.apiKey, authKeys.pivotal, ''),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'github':
+                githubFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.github.apiKey, authKeys.github, 'token '),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'ghwrapper':
+                ghwrapperFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'heroku':
+                herokuFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.heroku.apiKey, authKeys.heroku, 'Bearer '),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'travis':
+                travisFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.travis.apiKey, authKeys.travis, 'token '),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch,
+                    public: endpointType.split('_')[1] === 'public'
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'codeclimate':
+                codeclimateFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.codeclimate.apikey, authKeys.codeclimate, 'Token token='),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch,
+                    githubSlug: integrations.github.repoOwner + '/' + integrations.github.repository
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+            }
           }
         }
       }

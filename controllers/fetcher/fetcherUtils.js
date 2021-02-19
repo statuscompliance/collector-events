@@ -1,6 +1,6 @@
 'use strict';
 
-//const request = require('request');
+// const request = require('request');
 const axios = require('axios');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
@@ -54,7 +54,7 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
 
       // Make request
       axios(options).then(data => {
-        //console.log(data)
+        // console.log(data)
         temporalDB[url] = data.data;
         setTimeout(() => {
           delete temporalDB[url];
