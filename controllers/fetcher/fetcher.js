@@ -221,23 +221,28 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
         if (json[eventType].custom.type === 'graphQL') {
           const steps = JSON.parse(JSON.stringify(json[eventType].custom.steps));
 
+          // Substitute query integrations
+          Object.keys(steps).filter(stepKeyElement => ['queryGetObject', 'queryGetObjects'].includes(steps[stepKeyElement].type)).forEach(queryKey => {
+            steps[queryKey].query = steps[queryKey].query.replace('%PROJECT.github.repository%', integrations.github.repository).replace('%PROJECT.github.repoOwner%', integrations.github.repoOwner);
+          });
+
           // Substitute match filters with member
           if (member) {
             const memberRegex = /%MEMBER\.[a-zA-Z0-9.]+%/g;
             // For each step that its type is objectsFilterObject or objectsFilterObjects
-            for (const stepKey of Object.keys(steps).filter(stepKeyElement => ["objectsFilterObject", "objectsFilterObjects"].includes(steps[stepKeyElement].type))) {
+            for (const stepKey of Object.keys(steps).filter(stepKeyElement => ['objectsFilterObject', 'objectsFilterObjects'].includes(steps[stepKeyElement].type))) {
               const newFilters = [];
               // For each filter with a regex match
               for (let filter of steps[stepKey].filters.filter(filterElement => memberRegex.test(filterElement))) {
-                  // For each regex match in the filter
-                  for (const regexMatch of filter.match(memberRegex)) {
-                    const splitted = regexMatch.replace(/%/g, '').replace('MEMBER.', '').split('.');
-                    const identity = member.identities.filter(e => e.source === splitted[0])[0];
-                    if (identity) {
-                      filter = filter.replace(regexMatch, identity[splitted[1]]);
-                    }
+                // For each regex match in the filter
+                for (const regexMatch of filter.match(memberRegex)) {
+                  const splitted = regexMatch.replace(/%/g, '').replace('MEMBER.', '').split('.');
+                  const identity = member.identities.filter(e => e.source === splitted[0])[0];
+                  if (identity) {
+                    filter = filter.replace(regexMatch, identity[splitted[1]]);
                   }
-                
+                }
+
                 newFilters.push(filter);
               }
 
@@ -245,8 +250,6 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
               steps[stepKey].filters = newFilters.concat(steps[stepKey].filters.filter(filterElement => !memberRegex.test(filterElement)));
             }
           }
-
-          console.log(JSON.stringify(steps, null, 4));
 
           githubGQLFetcher
             .getInfo({

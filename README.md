@@ -174,3 +174,131 @@ SUBSTITUTIONS
 
 The system will replace %GITHUB.REPO_OWNER% with the information extracted from the Scope Manager for the project.
 
+### GraphQL custom query
+
+This method was created due to complexity of GraphQL nested objects. It is a custom method in which different steps are sequentially executed to fetch, transform and return data.
+
+This is a metric for obtaining the number of assigned issues, in a column called "Doing" inside a GitHub project, for each member:
+```
+{
+    "metric": {
+        "computing": "string",
+        "element": "number",
+        "event": {
+            "githubGQL": {
+                "custom": {
+                    "type": "graphQL",
+                    "steps": {
+                        "0": {
+                            "type": "queryGetObject",
+                            "query":  "{repository(name: \"%PROJECT.github.repository%\", owner: \"%PROJECT.github.repoOwner%\") {projects(first: 1) {nodes {name,columns(first: 10) {nodes {name,cards(first: 100) {totalCount,nodes {column {name},content {... on Issue {url,number,title,createdAt,updatedAt,assignees(first: 10) {nodes {login}}}}}}}}}}}}"                            
+                        },
+                        "1": {
+                            "type": "objectGetSubObjects",
+                            "location": "data.repository.projects.nodes.0.columns.nodes"
+                        },
+                        "2": {
+                            "type": "objectsFilterObject",
+                            "filters": [
+                                "name == 'Doing'"
+                            ],
+                            "keep": "first"
+                        },
+                        "3": {
+                            "type": "objectGetSubObjects",
+                            "location": "cards.nodes"
+                        },
+                        "4": {
+                            "type": "objectsFilterObjects",
+                            "filters": [
+                                "content.assignees.nodes.*any*.login == '%MEMBER.github.username%'"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "scope": {
+            "project": "testing-GH-governifyauditor_testing-goldenflow",
+            "class": "testing",
+            "member": "*"
+        },
+        "window": {
+            "initial": "2021-01-20T00:00:00Z",
+            "period": "annually",
+            "type": "static",
+            "end": "2021-02-19T00:00:00Z"
+        }
+    },
+    "config": {
+        "scopeManager": "SCOPEURL"
+    }
+}
+```
+
+As it can be seen, it is composed of 5 different steps. These steps are highly configurable and easy to add new steps.
+
+### Steps
+
+The different are given inside the steps key inside the custom object. Each step has to be inside a numbered object as they will be performed in an increasing order.
+
+The steps are differenciated by its type. These steps types follow a simple pattern for better steps concatenation. 
+ - Their types can start with "object", "objects" or nothing refering if they expect a single object, an array of objects or nothing at the execution. 
+ - Their types have to end with "object" or "objects", refering if after the execution, a single object or an array of objects is left.
+
+#### **Step type: queryGetObject and queryGetObjects**
+This steps expect nothing and returns or an object or an array of objects. They do the same but both types are correct for better reading of the DSL.
+
+```
+{
+  "type": "queryGetObject",
+  "query":  "{repository(name: \"%PROJECT.github.repository%\", owner: \"%PROJECT.github.repoOwner%\") {projects(first: 1) {nodes {name,columns(first: 10) {nodes {name,cards(first: 100) {totalCount,nodes {column {name},content {... on Issue {url,number,title,createdAt,updatedAt,assignees(first: 10) {nodes {login}}}}}}}}}}}}"                            
+}
+```
+
+It needs a "query" parametter to be passed containing the graphQL query stringified and using comas between keys at the same level. 
+%PROJECT.github.repository% and %PROJECT.github.repoOwner% are used to insert the scopes identities inside the query and make it generic for all the different teams.
+
+#### **Step type: objectGetSubObject and objectGetSubObjects**
+This steps expect a single object and return an object or an array of objects. They do the same but both types are correct for better reading of the DSL.
+```
+{
+  "type": "objectGetSubObjects",
+  "location": "data.repository.projects.nodes.0.columns.nodes"
+}
+```
+
+It obtains the object/s inside an object. The object/s location is specified as if it was navegated through javascript.
+
+#### **Step type: objectsFilterObject and objectsFilterObjects**
+This steps expect an array of zero or more objects and return an object or an array of objects.
+
+A filters array with one or more strings is requried. These strings are equations. The left part contains the attribute location on the different objects to compare and the right part the value the obtained attribute is expected to be.
+
+If the filter is *objectsFilterObject*, a parameter "keep" is expected as many objects can be retrieved from the filter and only one can remain. *first, last, min, max, sum, avg* are the valid options.
+```
+{
+  "type": "objectsFilterObject",
+  "filters": [
+    "name == 'Doing'"
+  ],
+  "keep": "first"
+}
+```
+
+If the filter is *objectsFilterObjects*, the keep parameter is no longer needed.
+```
+{
+  "type": "objectsFilterObjects",
+  "filters": [
+    "content.assignees.nodes.*any*.login == '%MEMBER.github.username%'"
+  ]
+}
+```
+
+Here, information about the members can be included to compare for example, the content of an object key to be the username of a github username, as it can be seen in the example.
+
+
+
+
+
