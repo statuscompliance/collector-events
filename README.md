@@ -256,7 +256,7 @@ This steps expect nothing and returns or an object or an array of objects. They 
 }
 ```
 
-It needs a "query" parametter to be passed containing the graphQL query stringified and using comas between keys at the same level. 
+It needs a "query" parametter to be passed containing the graphQL query stringified and using comas between keys at the same level. There is a simple .js to transform graphQL queries into the string format in utils/queryToString.js to simplify the process. 
 %PROJECT.github.repository% and %PROJECT.github.repoOwner% are used to insert the scopes identities inside the query and make it generic for all the different teams.
 
 #### **Step type: objectGetSubObject and objectGetSubObjects**
