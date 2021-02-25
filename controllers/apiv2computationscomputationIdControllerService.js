@@ -12,17 +12,17 @@ module.exports.findComputationBycomputationId = function findComputationBycomput
       } else if (typeof computation === typeof []) {
         sendWithStatus(res, 200, 'OK', computation);
       } else if (typeof computation === typeof '') {
-        sendWithStatus(res, 400, computation);
+        sendWithStatus(res, 400, computation, []);
       } else {
-        sendWithStatus(res, 500, 'Internal server error.');
+        sendWithStatus(res, 500, 'Internal server error.', []);
       }
     }).catch(err => {
       console.log('error - findComputationById.getComputation:\n' + err);
-      sendWithStatus(res, 500, 'Internal server error.');
+      sendWithStatus(res, 500, 'Internal server error.', []);
     });
   } catch (err) {
     console.log('error - findComputationById:\n' + err);
-    sendWithStatus(res, 500, 'Internal server error.');
+    sendWithStatus(res, 500, 'Internal server error.', []);
   }
 };
 
@@ -33,6 +33,7 @@ const sendWithStatus = (res, code, message, data) => {
   };
 
   if (data !== undefined) { toSend.computations = data; }
+  if (code !== 200 && code !== 202) { toSend.errorMessage = message; }
 
   res.status(code);
   res.send(toSend);

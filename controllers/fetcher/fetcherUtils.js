@@ -1,19 +1,74 @@
 'use strict';
 
-const request = require('request');
+// const request = require('request');
+const axios = require('axios');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
 const temporalDB = {};
 
 const defaultOptions = {
   json: true,
+  method: 'get',
   headers: {
     'User-Agent': 'request'
   }
 };
 
 // Retrieves data from an api based on an url, and a token
-const requestWithHeaders = (url, extraHeaders) => {
+const requestWithHeaders = (url, extraHeaders, data = undefined) => {
+  return new Promise((resolve, reject) => {
+    if (Object.keys(temporalDB).includes(url)) {
+      requestResolveCache(url).then(data => {
+        resolve(data);
+      }).catch(err => {
+        reject(err);
+      });
+    } else {
+      // Set temporal db to undefined for not requesting multiple times
+      temporalDB[url] = undefined;
+
+      // Create request
+      const options = { ...defaultOptions };
+      options.headers = { ...defaultOptions.headers };
+
+      // Add extra headers
+      const extraHeaderKeys = Object.keys(extraHeaders);
+      for (const key of extraHeaderKeys) {
+        options.headers[key] = extraHeaders[key];
+      }
+
+      // If POST add options
+      if (data) {
+        options.method = 'post';
+        options.data = data;
+      }
+
+      // Add url
+      options.url = url;
+
+      // Pseudonymizer addition
+      if (process.env.PSEUDONYMIZER_URL) {
+        options.url = process.env.PSEUDONYMIZER_URL + options.url;
+        options.headers['pseudonymizer-token'] = process.env.PSEUDONYMIZER_TOKEN;
+      }
+
+      // Make request
+      axios(options).then(data => {
+        // console.log(data)
+        temporalDB[url] = data.data;
+        setTimeout(() => {
+          delete temporalDB[url];
+        }, 6000);
+        resolve(data.data);
+      }).catch(err => {
+        temporalDB[url] = 'error';
+        reject(err);
+      });
+    }
+  });
+};
+
+/* const requestWithHeaders = (url, extraHeaders) => {
   return new Promise((resolve, reject) => {
     if (Object.keys(temporalDB).includes(url)) {
       requestResolveCache(url).then(data => {
@@ -51,7 +106,7 @@ const requestWithHeaders = (url, extraHeaders) => {
       });
     }
   });
-};
+}; */
 
 const requestResolveCache = (url) => {
   return new Promise((resolve, reject) => {

@@ -40,15 +40,15 @@ const buildMockups = (mockups, filename, logs = false) => {
       for (const mockup of JSON.parse(mockups)) {
         if (mockup.type === 'GET') {
           if (logs) {
-            nock(mockup.requestAPI, { allowUnmocked: true }).log(console.log).get(mockup.requestEndpoint).reply(200, mockup.response);
+            nock(mockup.requestAPI, { allowUnmocked: true }).log(console.log).get(mockup.requestEndpoint).times(1000).reply(200, mockup.response);
           } else {
-            nock(mockup.requestAPI, { allowUnmocked: true }).get(mockup.requestEndpoint).reply(200, mockup.response);
+            nock(mockup.requestAPI, { allowUnmocked: true }).get(mockup.requestEndpoint).times(1000).reply(200, mockup.response);
           }
         } else if (mockup.type === 'POST') {
           if (logs) {
-            nock(mockup.requestAPI, { allowUnmocked: true }).log(console.log).post(mockup.requestEndpoint, mockup.body).reply(200, mockup.response);
+            nock(mockup.requestAPI, { allowUnmocked: true }).log(console.log).post(mockup.requestEndpoint, mockup.body).times(1000).reply(200, mockup.response);
           } else {
-            nock(mockup.requestAPI, { allowUnmocked: true }).post(mockup.requestEndpoint, mockup.body).reply(200, mockup.response);
+            nock(mockup.requestAPI, { allowUnmocked: true }).post(mockup.requestEndpoint, mockup.body).times(1000).reply(200, mockup.response);
           }
         }
       }

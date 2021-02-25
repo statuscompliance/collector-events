@@ -184,8 +184,6 @@ const getPeriods = (dsl) => {
   });
 };
 
-const requestCache = {};
-
 const getScopeInfo = (url, scope) => {
   return new Promise((resolve, reject) => {
     try {
@@ -199,19 +197,29 @@ const getScopeInfo = (url, scope) => {
         }
       };
 
-      if (requestCache[options.url] !== undefined) {
-        resolve(requestCache[options.url]);
-      } else {
-        request(options, (err, res, body) => {
-          if (err) {
-            reject(err);
+      request(options, (err, res, body) => {
+        if (err) {
+          reject(new Error('Failed when requesting to ScopeManager'));
+          console.log(err);
+        }
+        if (body && body.code === 404) {
+          if (scope) {
+            reject(new Error('Project scope not found.\nProjectScopeId: ' + scope.project + ', ClassScopeId: ' + scope.class));
+          } else {
+            reject(new Error('Error: No scope was given.'));
           }
-          requestCache[options.url] = body;
+          console.log('Error: Scope Manager 404 Response:', body.message);
+        } else {
           resolve(body);
-        });
-      }
+        }
+      });
     } catch (err) {
-      reject(err);
+      if (scope) {
+        reject(new Error('Failed when obtaining project scope.\nProjectScopeId: ' + scope.project + ', ClassScopeId: ' + scope.class));
+      } else {
+        reject(new Error('Error: No scope was given.'));
+      }
+      console.log(err);
     }
   });
 };
@@ -307,7 +315,9 @@ const sendError = (res, err, code) => {
   res.status(code);
   res.send({
     code: code,
-    message: err.message
+    computations: [],
+    message: err.message,
+    errorMessage: err.message
   });
 };
 

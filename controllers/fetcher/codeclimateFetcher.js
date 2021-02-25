@@ -23,6 +23,7 @@ const getInfo = (options) => {
           reject(err);
         });
       }).catch(err => {
+        console.log('Failed when obtaining information for repo ' + options.githubSlug);
         reject(err);
       });
     }).catch((err) => {
@@ -40,8 +41,12 @@ const getData = (url, token, to) => {
         resolve(cached.data[0]);
       } else {
         fetcherUtils.requestWithHeaders(url, { Authorization: token }).then((data) => {
-          cacheData(data, url, to);
-          resolve(data.data[0]);
+          if (!data.data[0]) {
+            reject(Error('No CC project found or unauthorized. URL: ' + url));
+          } else {
+            cacheData(data, url, to);
+            resolve(data.data[0]);
+          }
         }).catch((err) => { reject(err); });
       }
     } catch (err) {
@@ -69,7 +74,10 @@ const getDataPaginated = (url, token, to, first = true) => {
         }
       } else {
         fetcherUtils.requestWithHeaders(requestUrl, { Authorization: token }).then((data) => {
-          if (data.links.next) {
+          if (data.errors) {
+            console.log(data);
+            reject(Error('Error when obtaining CC information. Url: ' + requestUrl));
+          } else if (data.links.next) {
             cacheData(data, requestUrl, to);
             getDataPaginated(data.links.next, token, to, false).then(recData => {
               resolve(data.data.concat(recData));

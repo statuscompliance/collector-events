@@ -23,7 +23,9 @@ const getInfo = (options) => {
         eventType
       ).then(filteredData => {
         resolve(filteredData);
-      });
+      }).catch(err => reject(err));
+    }).catch(err => {
+      reject(err);
     });
   });
 };
@@ -49,11 +51,25 @@ const getDataPaginated = (url, token, offset = 0) => {
           getDataPaginated(url, token, offset + data.length).then(recData => {
             resolve(data.concat(recData));
           }).catch((err) => { reject(err); });
+        } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
+          console.log('Problem when requesting PT payload:\n', data);
+
+          if (data.kind === 'error') {
+            if (data.error.includes('The object you tried to access could not be found.')) {
+              reject(new Error('PT project not found. URL: ' + requestUrl));
+            } else if (data.error === 'Authorization failure.') {
+              reject(new Error('Unauthorized access to PT project. URL: ' + requestUrl));
+            } else {
+              reject(new Error(data.error + ' URL: ' + requestUrl));
+            }
+          } else {
+            reject(new Error('PT unknown problem. URL: ' + requestUrl));
+          }
         } else {
           requestCache[requestUrl] = [];
           resolve([]);
         }
-      });
+      }).catch(err => reject(err));
     }
   });
 };

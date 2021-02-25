@@ -3,15 +3,24 @@
 const fetcherUtils = require('./fetcherUtils');
 
 const apiUrl = 'https://api.github.com';
-const eventType = 'github';
+// const eventType = 'githubGQL';
 
-let requestCache = {};
-let cacheDate;
+// const requestCache = {};
+// let cacheDate;
 
 // Function who controls the script flow
 const getInfo = (options) => {
   return new Promise((resolve, reject) => {
-    getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {
+    getDataPaginated(options.query, options.token, options.match.location).then((data) => {
+      const matches = getMatches(data, options.match.filters);
+      console.log(matches);
+      resolve(matches);
+    }).catch(err => {
+      console.log(err);
+      resolve(new Error('Failed when fetching to github.'));
+    });
+
+    /* getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {
       fetcherUtils.applyFilters(
         data,
         options.from,
@@ -71,14 +80,21 @@ const getInfo = (options) => {
       }).catch(err => reject(err));
     }).catch(err => {
       reject(err);
-    });
+    }); */
   });
 };
 
 // Paginates github data to retrieve everything
-const getDataPaginated = (url, token, to, page = 1) => {
+const getDataPaginated = (query, token, objectsLocation) => {
   return new Promise((resolve, reject) => {
-    let requestUrl = url;
+    fetcherUtils.requestWithHeaders(apiUrl + '/graphql', { Authorization: token }, { query: query }).then((data) => {
+      resolve(getSubObject(data, objectsLocation));
+    }).catch(err => {
+      console.log(err);
+      resolve(new Error('Failed when fetching to github.'));
+    });
+
+    /* let requestUrl = url;
     requestUrl += requestUrl.split('/').pop().includes('?') ? '&page=' + page : '?page=' + page;
 
     const cached = requestCache[requestUrl];
@@ -111,19 +127,43 @@ const getDataPaginated = (url, token, to, page = 1) => {
           resolve([]);
         }
       }).catch((err) => { reject(err); });
-    }
+    } */
   });
 };
 
-const cacheData = (data, requestUrl, to) => {
+const getMatches = (objects, filters) => {
+  try {
+    console.log(filters);
+    console.log('hey');
+    const matches = [];
+
+    for (const object of objects) {
+      let matched = true;
+      for (const filter of filters) {
+        const splitted = filter.replace(/ /gm, '').split('==');
+        if (getSubObject(object, splitted[0].replace(/'/gm, '')) !== splitted[1].replace(/'/gm, '')) {
+          matched = false;
+          break;
+        }
+      }
+      matched && matches.push(object);
+    }
+    return matches;
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
+
+/* const cacheData = (data, requestUrl, to) => {
   if (cacheDate !== undefined && Date.parse(to) < Date.parse(cacheDate)) { requestCache[requestUrl] = data; } else {
     requestCache = {};
     requestCache[requestUrl] = data;
     cacheDate = new Date().toISOString();
   }
-};
+}; */
 
-const getSecondMustMatch = (mustMatch) => {
+/* const getSecondMustMatch = (mustMatch) => {
   try {
     const copy = { ...mustMatch };
     for (const key of Object.keys(mustMatch)) {
@@ -146,6 +186,26 @@ const getSecondMustMatch = (mustMatch) => {
   } catch (err) {
     console.log(err);
     return {};
+  }
+}; */
+
+const getSubObject = (object, location) => {
+  try {
+    if (location.includes('.')) {
+      const splitted = location.split('.')[0];
+      const newObject = object[splitted];
+
+      if (!newObject) {
+        return undefined;
+      } else {
+        return getSubObject(newObject, location.split(splitted + '.')[1]);
+      }
+    } else {
+      return object[location];
+    }
+  } catch (err) {
+    console.log(err);
+    return undefined;
   }
 };
 
