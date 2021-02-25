@@ -1,3 +1,26 @@
+# [1.7.0](https://github.com/governify/collector-events/compare/v1.6.0...v1.7.0) (2021-02-25)
+
+
+### Bug Fixes
+
+* [ ] computations errors ([d89729d](https://github.com/governify/collector-events/commit/d89729d039900d9d65406a73f8c69e924ed4b9db))
+* cache ([d5e3397](https://github.com/governify/collector-events/commit/d5e3397af7cccc00406b2088092f4932bff70167))
+* lint and updated dependencies ([87727c2](https://github.com/governify/collector-events/commit/87727c2872241cd03c1916b7b1aa07a56773d4d6))
+* unhandled rejections ([39eb9d6](https://github.com/governify/collector-events/commit/39eb9d61ff984dec514d2be4d91739013875b41b))
+
+
+### Features
+
+* add member filtering ([d2b3017](https://github.com/governify/collector-events/commit/d2b30172e3a5afab518f86af0b597d1d4981bbf1))
+* CC negative tests ([51cf5ad](https://github.com/governify/collector-events/commit/51cf5ad9ef2699d76979b57dfd0f48d78299e89d))
+* heroku tests ([ab0e3ea](https://github.com/governify/collector-events/commit/ab0e3eaf96d353a6853c929aef29a59de88cfc46))
+* negative tests ([37121f9](https://github.com/governify/collector-events/commit/37121f9231f2659496430d173beb04c1298ea398))
+* pivotal, github control ([8dbf979](https://github.com/governify/collector-events/commit/8dbf97901469efa87070f0c53133382e5e682276))
+* request changed with axios ([9a80b3f](https://github.com/governify/collector-events/commit/9a80b3f35ce6f97e2334d3b41b08d685a5093a63))
+* travis negative tests ([a142f7c](https://github.com/governify/collector-events/commit/a142f7cfb365f1be7e34a42759245613de06d764))
+
+
+
 # [1.6.0](https://github.com/governify/collector-events/compare/v1.5.2...v1.6.0) (2021-01-19)
 
 
