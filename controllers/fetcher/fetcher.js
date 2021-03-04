@@ -200,6 +200,8 @@ const getEventMatches = (relatedObject, mainEventsObject, mainEndpointType, from
 
           findMatches(mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, Object.keys(relatedObject[secondaryEventType])[0], relatedObject).then(foundMatches => {
             resolve(foundMatches);
+          }).catch(err => {
+            reject(err);
           });
         }).catch((err) => {
           reject(err);
@@ -410,14 +412,18 @@ const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvent
       for (const mainEvent of mainEvents) {
         for (const secondaryEvent of secondaryEvents) {
           // Get event dates
-          const mainEventDate = Date.parse(sourcesManager.getEventDate(mainEventType, mainEndpointType, mainEvent));
-          const secondaryEventDate = Date.parse(sourcesManager.getEventDate(secondaryEventType, secondaryEndpointType, secondaryEvent));
-          if (mainEventDate === undefined) { reject(new Error('No payload date for this API (' + mainEventType + ')')); }
-          if (secondaryEventDate === undefined) { reject(new Error('No payload date for this API (' + secondaryEventType + ')')); }
+          let mainEventDate = Date.parse(sourcesManager.getEventDate(mainEventType, mainEndpointType, mainEvent));
+          let secondaryEventDate = Date.parse(sourcesManager.getEventDate(secondaryEventType, secondaryEndpointType, secondaryEvent));
+          if (isNaN(mainEventDate)) { console.log('No payload date for this API (' + mainEventType, mainEndpointType + ')'); }
+          if (isNaN(secondaryEventDate)) { console.log('No payload date for this API (' + secondaryEventType + ')'); }
+
+          // No Date problem
+          isNaN(mainEventDate) && (mainEventDate = Date.now());
+          isNaN(secondaryEventDate) && (secondaryEventDate = Date.now());
 
           // Match filters
           const actualEventPayload = relatedObject[secondaryEventType][Object.keys(relatedObject[secondaryEventType])[0]];
-          const window = relatedObject.window ? relatedObject.window : 86400 * 365 * 4; // 4 years window if not stated (undefined window)
+          const window = relatedObject.window ? relatedObject.window : 86400 * 365 * 10; // 10 years window if not stated (undefined window)
           if ((Math.abs(mainEventDate - secondaryEventDate) / 1000) < window && matchBinding(mainEvent, secondaryEvent, actualEventPayload)) {
             matches.push([mainEvent, secondaryEvent]);
           }
@@ -436,7 +442,7 @@ const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvent
 
         findMatches(trimmedMainEvents, mainEventType, mainEndpointType, trimmedSecondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject).then(newMatches => {
           resolve(matches.concat(newMatches));
-        });
+        }).catch(err => reject(err));
       } else {
         resolve(matches);
       }

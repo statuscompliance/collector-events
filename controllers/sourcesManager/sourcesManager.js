@@ -81,20 +81,25 @@ exports.getMustMatch = (json, integrations, member) => {
 
 exports.getEventDate = (eventType, endpointType, event) => {
   try {
-    const payloadDatesJSON = { ...configJSON.endpoints };
-    const split = payloadDatesJSON[eventType][endpointType].payloadDate.split('.');
+    if (endpointType === 'custom') {
+      console.log('custom!');
+      return undefined;
+    } else {
+      const payloadDatesJSON = { ...configJSON.endpoints };
+      const split = payloadDatesJSON[eventType][endpointType].payloadDate.split('.');
 
-    // Iterative extraction of event date based on the endpoint payloadDate configuration
-    let eventDate = event;
-    for (let i = 0; i < split.length; i++) {
-      eventDate = eventDate[split[i]];
+      // Iterative extraction of event date based on the endpoint payloadDate configuration
+      let eventDate = event;
+      for (let i = 0; i < split.length; i++) {
+        eventDate = eventDate[split[i]];
+      }
+
+      if (eventDate === undefined) {
+        throw new Error('SourcesManager.getEventDate - Not found attribute in payload (eventType/endpointType: ' + eventType + '/' + endpointType + '-> Attribute: ' + payloadDatesJSON[eventType][endpointType].payloadDate + ').\n' + 'Payload: \n' + JSON.stringify(event, undefined, 4));
+      }
+
+      return eventDate;
     }
-
-    if (eventDate === undefined) {
-      throw new Error('SourcesManager.getEventDate - Not found attribute in payload (eventType/endpointType: ' + eventType + '/' + endpointType + '-> Attribute: ' + payloadDatesJSON[eventType][endpointType].payloadDate + ').\n' + 'Payload: \n' + JSON.stringify(event, undefined, 4));
-    }
-
-    return eventDate;
   } catch (err) {
     console.log('error - sourcesManager.getEventDate:\n' + err);
     return undefined;
