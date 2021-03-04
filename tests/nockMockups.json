@@ -45194,68 +45194,91 @@
     "type": "POST",
     "requestAPI": "https://api.github.com",
     "requestEndpoint": "/graphql",
-    "body": "{repository(name: \"testing-goldenflow\", owner: \"governifyauditor\") {projects(first: 1) {nodes {name,columns(first: 10) {nodes {name,cards(first: 100) {totalCount,nodes {column {name,},content {... on Issue {url,number,title,createdAt,updatedAt,assignees(first: 10) {nodes {login,},},},},},},},},},},},},",
+    "body": {"query":"{repository(name: \"testing-goldenflow\", owner: \"governifyauditor\") {projects(first: 1) {nodes {name,columns(first: 10) {nodes {name,cards(first: 100) {totalCount,nodes {column {name,},content {... on Issue {url,number,title,createdAt,updatedAt,assignees(first: 10) {nodes {login,},},},},},},},},},},},},"},
     "response": {
       "data": {
-        "repository": {
-          "issues": {
-            "nodes": [
-              {
-                "projectCards": {
+          "repository": {
+              "projects": {
                   "nodes": [
-                    {
-                      "column": {
-                        "name": "Done"
-                      }
-                    }
-                  ]
-                },
-                "title": "Test 2",
-                "updatedAt": "2021-02-16T09:18:26Z",
-                "number": 4
-              },
-              {
-                "projectCards": {
-                  "nodes": [
-                    {
-                      "column": {
-                        "name": "Doing"
-                      }
-                    }
-                  ]
-                },
-                "title": "Test 3",
-                "updatedAt": "2021-02-22T11:38:32Z",
-                "number": 5
-              }
-            ],
-            "edges": [
-              {
-                "node": {
-                  "assignees": {
-                    "nodes": [
                       {
-                        "login": "governifyauditor"
+                          "name": "Project 1",
+                          "columns": {
+                              "nodes": [
+                                  {
+                                      "name": "To do col",
+                                      "cards": {
+                                          "totalCount": 1,
+                                          "nodes": [
+                                              {
+                                                  "column": {
+                                                      "name": "To do col"
+                                                  },
+                                                  "content": null
+                                              }
+                                          ]
+                                      }
+                                  },
+                                  {
+                                      "name": "Doing",
+                                      "cards": {
+                                          "totalCount": 1,
+                                          "nodes": [
+                                              {
+                                                  "column": {
+                                                      "name": "Doing"
+                                                  },
+                                                  "content": {
+                                                      "url": "https://github.com/governifyauditor/testing-goldenflow/issues/5",
+                                                      "number": 5,
+                                                      "title": "Test 3",
+                                                      "createdAt": "2021-02-17T12:37:47Z",
+                                                      "updatedAt": "2021-02-22T11:38:32Z",
+                                                      "assignees": {
+                                                          "nodes": [
+                                                              {
+                                                                  "login": "cesgarpas"
+                                                              }
+                                                          ]
+                                                      }
+                                                  }
+                                              }
+                                          ]
+                                      }
+                                  },
+                                  {
+                                      "name": "Done",
+                                      "cards": {
+                                          "totalCount": 1,
+                                          "nodes": [
+                                              {
+                                                  "column": {
+                                                      "name": "Done"
+                                                  },
+                                                  "content": {
+                                                      "url": "https://github.com/governifyauditor/testing-goldenflow/issues/4",
+                                                      "number": 4,
+                                                      "title": "Test 2",
+                                                      "createdAt": "2021-02-08T11:05:12Z",
+                                                      "updatedAt": "2021-02-16T09:18:26Z",
+                                                      "assignees": {
+                                                          "nodes": [
+                                                              {
+                                                                  "login": "governifyauditor"
+                                                              }
+                                                          ]
+                                                      }
+                                                  }
+                                              }
+                                          ]
+                                      }
+                                  }
+                              ]
+                          }
                       }
-                    ]
-                  }
-                }
-              },
-              {
-                "node": {
-                  "assignees": {
-                    "nodes": [
-                      {
-                        "login": "cesgarpas"
-                      }
-                    ]
-                  }
-                }
+                  ]
               }
-            ]
           }
-        }
       }
-    }
+  }
   }
 ]
