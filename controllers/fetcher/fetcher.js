@@ -9,6 +9,8 @@ const travisFetcher = require('./travisFetcher');
 const codeclimateFetcher = require('./codeclimateFetcher');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
+const cachedMetrics = {};
+
 // Function who controls the flow of the app
 const compute = (dsl, from, to, integrations, authKeys, member) => {
   return new Promise((resolve, reject) => {
@@ -20,19 +22,31 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
       const mainEvents = {};
       const mainEventType = Object.keys(dsl.event)[0];
 
-      // First we obtain The main events
-      getEventsFromJson(dsl.event, from, to, { ...integrations }, authKeys, member).then((events) => {
-        mainEvents[mainEventType] = events;
-        evidences = events;
-        // We call getMetric to obtain the metric and evidences depending on the type
-        getMetricAndEvidences(dsl, from, to, { ...integrations }, { ...mainEvents }, mainEventType, [...evidences], metricType, authKeys, member).then(result => {
-          resolve(result);
-        }).catch(err => {
+      // Cached computation
+      let cacheId;
+      if (dsl.cache) {
+        cacheId = member
+          ? dsl.scope.class + '-' + dsl.scope.project + '-' + member.memberId + '-' + dsl.cache
+          : dsl.scope.class + '-' + dsl.scope.project + '-' + dsl.cache;
+      }
+
+      if (cacheId && cachedMetrics[cacheId]) {
+        resolve(cachedMetrics);
+      } else {
+        // First we obtain The main events
+        getEventsFromJson(dsl.event, from, to, { ...integrations }, authKeys, member).then((events) => {
+          mainEvents[mainEventType] = events;
+          evidences = events;
+          // We call getMetric to obtain the metric and evidences depending on the type
+          getMetricAndEvidences(dsl, from, to, { ...integrations }, { ...mainEvents }, mainEventType, [...evidences], metricType, authKeys, member, dsl.event).then(result => {
+            resolve(result);
+          }).catch(err => {
+            reject(err);
+          });
+        }).catch((err) => {
           reject(err);
         });
-      }).catch((err) => {
-        reject(err);
-      });
+      }
     } catch (err) {
       reject(err);
     }
@@ -40,7 +54,7 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
 };
 
 // Function that return a metric and evidences depending on the metric type
-const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEventType, originalEvidences, metricType, authKeys, member) => {
+const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEventType, originalEvidences, metricType, authKeys, member, mainEventObject) => {
   return new Promise((resolve, reject) => {
     try {
       let metric;
@@ -59,7 +73,7 @@ const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEven
           const secondaryEventFrom = new Date(Date.parse(from) - (window * 1000)).toISOString();
           const secondaryEventTo = new Date(Date.parse(to) + (window * 1000)).toISOString();
 
-          getEventMatches(relatedObject, mainEvents, Object.keys(dsl.event[mainEventType])[0], secondaryEventFrom, secondaryEventTo, { ...integrations }, authKeys, member).then((eventMatches) => {
+          getEventMatches(relatedObject, mainEvents, Object.keys(dsl.event[mainEventType])[0], secondaryEventFrom, secondaryEventTo, { ...integrations }, authKeys, member, mainEventObject).then((eventMatches) => {
             percentageNum = eventMatches.length;
             evidences = eventMatches;
             if (metricType === 'percentage') {
@@ -179,7 +193,7 @@ const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEven
 };
 
 // From a "specified related json" finds the matches of the events based on a time window
-const getEventMatches = (relatedObject, mainEventsObject, mainEndpointType, from, to, integrations, authKeys, member) => {
+const getEventMatches = (relatedObject, mainEventsObject, mainEndpointType, from, to, integrations, authKeys, member, mainEventObject) => {
   return new Promise((resolve, reject) => {
     try {
       const relatedKeys = Object.keys(relatedObject);
@@ -198,7 +212,7 @@ const getEventMatches = (relatedObject, mainEventsObject, mainEndpointType, from
           const mainEventType = Object.keys(mainEventsObject)[0];
           var mainEvents = mainEventsObject[mainEventType];
 
-          findMatches(mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, Object.keys(relatedObject[secondaryEventType])[0], relatedObject).then(foundMatches => {
+          findMatches(mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, Object.keys(relatedObject[secondaryEventType])[0], relatedObject, mainEventObject).then(foundMatches => {
             resolve(foundMatches);
           }).catch(err => {
             reject(err);
@@ -405,7 +419,7 @@ const generateToken = (primary, secondary, prefix) => {
   }
 };
 
-const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject) => {
+const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject, mainEventObject) => {
   return new Promise((resolve, reject) => {
     try {
       const matches = [];
@@ -422,9 +436,11 @@ const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvent
           isNaN(secondaryEventDate) && (secondaryEventDate = Date.now());
 
           // Match filters
-          const actualEventPayload = relatedObject[secondaryEventType][Object.keys(relatedObject[secondaryEventType])[0]];
+          const mainEventDSL = mainEventObject[mainEventType][Object.keys(mainEventObject[mainEventType])[0]];
+          const secondaryEventDSL = relatedObject[secondaryEventType][Object.keys(relatedObject[secondaryEventType])[0]];
+
           const window = relatedObject.window ? relatedObject.window : 86400 * 365 * 10; // 10 years window if not stated (undefined window)
-          if ((Math.abs(mainEventDate - secondaryEventDate) / 1000) < window && matchBinding(mainEvent, secondaryEvent, actualEventPayload)) {
+          if ((Math.abs(mainEventDate - secondaryEventDate) / 1000) < window && matchBinding(mainEvent, secondaryEvent, secondaryEventDSL) && matchBinding(secondaryEvent, mainEvent, mainEventDSL)) {
             matches.push([mainEvent, secondaryEvent]);
           }
 
@@ -440,7 +456,7 @@ const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvent
         trimmedMainEvents.splice(mainEvents.indexOf(matches[0][0]), 1);
         trimmedSecondaryEvents.splice(secondaryEvents.indexOf(matches[0][1]), 1);
 
-        findMatches(trimmedMainEvents, mainEventType, mainEndpointType, trimmedSecondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject).then(newMatches => {
+        findMatches(trimmedMainEvents, mainEventType, mainEndpointType, trimmedSecondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject, mainEventObject).then(newMatches => {
           resolve(matches.concat(newMatches));
         }).catch(err => reject(err));
       } else {
