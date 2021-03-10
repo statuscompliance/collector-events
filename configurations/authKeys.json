@@ -3,7 +3,8 @@
     "github": "$_[KEY_GITHUB]",
     "pivotal": "$_[KEY_PIVOTAL]",
     "heroku": "$_[KEY_HEROKU]",
-    "travis": "$_[KEY_TRAVIS]",
+    "travis_public": "$_[KEY_TRAVIS_PUBLIC]",
+    "travis_private": "$_[KEY_TRAVIS_PRIVATE]",
     "codeclimate": "$_[KEY_CODECLIMATE]",
     "pseudonymizer": "$_[KEY_PSEUDONYMIZER]"
 }

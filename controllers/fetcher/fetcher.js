@@ -363,7 +363,7 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                   .getInfo({
                     from: from,
                     to: to,
-                    token: generateToken(integrations.travis.apiKey, authKeys.travis, 'token '),
+                    token: generateToken(integrations.travis.apiKey, endpointType.includes("private") ? authKeys.travis_private : authKeys.travis_public, 'token '),
                     endpoint: endpoint,
                     endpointType: endpointType,
                     mustMatch: mustMatch,
