@@ -9,8 +9,6 @@ const travisFetcher = require('./travisFetcher');
 const codeclimateFetcher = require('./codeclimateFetcher');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
-const cachedMetrics = {};
-
 // Function who controls the flow of the app
 const compute = (dsl, from, to, integrations, authKeys, member) => {
   return new Promise((resolve, reject) => {
@@ -22,31 +20,19 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
       const mainEvents = {};
       const mainEventType = Object.keys(dsl.event)[0];
 
-      // Cached computation
-      let cacheId;
-      if (dsl.cache) {
-        cacheId = member
-          ? dsl.scope.class + '-' + dsl.scope.project + '-' + member.memberId + '-' + dsl.cache
-          : dsl.scope.class + '-' + dsl.scope.project + '-' + dsl.cache;
-      }
-
-      if (cacheId && cachedMetrics[cacheId]) {
-        resolve(cachedMetrics);
-      } else {
-        // First we obtain The main events
-        getEventsFromJson(dsl.event, from, to, { ...integrations }, authKeys, member).then((events) => {
-          mainEvents[mainEventType] = events;
-          evidences = events;
-          // We call getMetric to obtain the metric and evidences depending on the type
-          getMetricAndEvidences(dsl, from, to, { ...integrations }, { ...mainEvents }, mainEventType, [...evidences], metricType, authKeys, member, dsl.event).then(result => {
-            resolve(result);
-          }).catch(err => {
-            reject(err);
-          });
-        }).catch((err) => {
+      // First we obtain The main events
+      getEventsFromJson(dsl.event, from, to, { ...integrations }, authKeys, member).then((events) => {
+        mainEvents[mainEventType] = events;
+        evidences = events;
+        // We call getMetric to obtain the metric and evidences depending on the type
+        getMetricAndEvidences(dsl, from, to, { ...integrations }, { ...mainEvents }, mainEventType, [...evidences], metricType, authKeys, member, dsl.event).then(result => {
+          resolve(result);
+        }).catch(err => {
           reject(err);
         });
-      }
+      }).catch((err) => {
+        reject(err);
+      });
     } catch (err) {
       reject(err);
     }

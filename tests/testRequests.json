@@ -6934,7 +6934,7 @@
         ]
     },
     {
-        "name": "github-graphql",
+        "name": "github-graphql-member",
         "type": "POST",
         "requestAPI": "http://event.collector.bluejay.governify.io",
         "requestEndpoint": "/api/v2/computations",
@@ -6949,6 +6949,115 @@
                             "steps": {
                                 "0": {
                                     "type": "queryGetObject",
+                                    "query":  "{repository(name: \"%PROJECT.github.repository%\", owner: \"%PROJECT.github.repoOwner%\") {projects(first: 1) {nodes {name,columns(first: 10) {nodes {name,cards(first: 100) {totalCount,nodes {column {name,},content {... on Issue {url,number,title,createdAt,updatedAt,assignees(first: 10) {nodes {login,},},},},},},},},},},},},"                            
+                                },
+                                "1": {
+                                    "type": "objectGetSubObjects",
+                                    "location": "data.repository.projects.nodes.0.columns.nodes"
+                                },
+                                "2": {
+                                    "type": "objectsFilterObject",
+                                    "filters": [
+                                        "name == 'Doing'"
+                                    ],
+                                    "keep": "first"
+                                },
+                                "3": {
+                                    "type": "objectGetSubObjects",
+                                    "location": "cards.nodes"
+                                },
+                                "4": {
+                                    "type": "objectsFilterObjects",
+                                    "filters": [
+                                        "content.assignees.nodes.*any*.login == '%MEMBER.github.username%'"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "scope": {
+                    "project": "testing-GH-governifyauditor_testing-goldenflow",
+                    "class": "testing",
+                    "member": "*"
+                },
+                "window": {
+                    "initial": "2021-01-20T00:00:00Z",
+                    "period": "annually",
+                    "type": "static",
+                    "end": "2021-02-19T00:00:00Z"
+                }
+            },
+            "config": {
+                "scopeManager": "http://scopemanager.domain/api/v1/scopes/development"
+            }
+        },
+        "response": [
+            {
+                "scope": {
+                    "project": "testing-GH-governifyauditor_testing-goldenflow",
+                    "class": "testing",
+                    "member": "Governify_Auditor"
+                },
+                "period": {
+                    "from": "2021-01-20T00:00:00Z",
+                    "to": "2021-02-19T00:00:00.000Z"
+                },
+                "evidences": [],
+                "value": 0
+            },
+            {
+                "scope": {
+                    "project": "testing-GH-governifyauditor_testing-goldenflow",
+                    "class": "testing",
+                    "member": "Cesar_GP"
+                },
+                "period": {
+                    "from": "2021-01-20T00:00:00Z",
+                    "to": "2021-02-19T00:00:00.000Z"
+                },
+                "evidences": [
+                    {
+                        "column": {
+                            "name": "Doing"
+                        },
+                        "content": {
+                            "url": "https://github.com/governifyauditor/testing-goldenflow/issues/5",
+                            "number": 5,
+                            "title": "Test 3",
+                            "createdAt": "2021-02-17T12:37:47Z",
+                            "updatedAt": "2021-02-22T11:38:32Z",
+                            "assignees": {
+                                "nodes": [
+                                    {
+                                        "login": "cesgarpas"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "value": 1
+            }
+        ]
+    },
+    {
+        "name": "github-graphql-member-cache",
+        "type": "POST",
+        "requestAPI": "http://event.collector.bluejay.governify.io",
+        "requestEndpoint": "/api/v2/computations",
+        "body": {
+            "metric": {
+                "computing": "string",
+                "element": "number",
+                "event": {
+                    "githubGQL": {
+                        "custom": {
+                            "type": "graphQL",
+                            "steps": {
+                                "0": {
+                                    "type": "queryGetObject",
+                                    "cache": true,
                                     "query":  "{repository(name: \"%PROJECT.github.repository%\", owner: \"%PROJECT.github.repoOwner%\") {projects(first: 1) {nodes {name,columns(first: 10) {nodes {name,cards(first: 100) {totalCount,nodes {column {name,},content {... on Issue {url,number,title,createdAt,updatedAt,assignees(first: 10) {nodes {login,},},},},},},},},},},},},"                            
                                 },
                                 "1": {

@@ -1,6 +1,7 @@
 'use strict';
 
 const fetcherUtils = require('./fetcherUtils');
+const redisManager = require('./redisManager');
 
 const apiUrl = 'https://api.github.com';
 // const eventType = 'githubGQL';
@@ -18,11 +19,25 @@ const getInfo = (options) => {
       for (const stepNumber of Object.keys(options.steps)) {
         const step = options.steps[stepNumber];
         if (step.type === 'queryGetObject' || step.type === 'queryGetObjects') {
-          await getDataPaginated(step.query, options.token).then(data => {
-            resultData = data;
-          }).catch(err => {
-            reject(err);
-          });
+          let cached;
+          try {
+            cached = await redisManager.getCache(options.from + options.to + step.query);
+          } catch (err) {
+            console.log(err);
+            cached = null;
+          }
+          if (step.cache && cached !== null) {
+            console.log('Cached response!');
+            resultData = cached;
+          } else {
+            console.log('Uncached response!');
+            await getDataPaginated(step.query, options.token).then(data => {
+              resultData = data;
+              step.cache && redisManager.setCache(options.from + options.to + step.query, data);
+            }).catch(err => {
+              reject(err);
+            });
+          }
         } else if (step.type === 'objectGetSubObject' || step.type === 'objectGetSubObjects') {
           resultData = getSubObject(resultData, step.location);
         } else if (step.type === 'objectsFilterObject' || step.type === 'objectsFilterObjects') {
