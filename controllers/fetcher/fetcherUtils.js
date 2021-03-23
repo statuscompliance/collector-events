@@ -54,7 +54,6 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
         options.url = process.env.PSEUDONYMIZER_URL + options.url;
         options.headers['pseudonymizer-token'] = process.env.PSEUDONYMIZER_TOKEN;
       }
-      console.log(options.url);
 
       // Make request
       axios(options).then(data => {

@@ -414,8 +414,8 @@ const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvent
           // Get event dates
           let mainEventDate = Date.parse(sourcesManager.getEventDate(mainEventType, mainEndpointType, mainEvent));
           let secondaryEventDate = Date.parse(sourcesManager.getEventDate(secondaryEventType, secondaryEndpointType, secondaryEvent));
-          if (isNaN(mainEventDate)) { console.log('No payload date for this API (' + mainEventType, mainEndpointType + ')'); }
-          if (isNaN(secondaryEventDate)) { console.log('No payload date for this API (' + secondaryEventType + ')'); }
+          // if (isNaN(mainEventDate)) { console.log('No payload date for this API (' + mainEventType, mainEndpointType + ')'); }
+          // if (isNaN(secondaryEventDate)) { console.log('No payload date for this API (' + secondaryEventType + ')'); }
 
           // No Date problem
           isNaN(mainEventDate) && (mainEventDate = Date.now());

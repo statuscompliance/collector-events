@@ -27,10 +27,8 @@ const getInfo = (options) => {
             cached = null;
           }
           if (step.cache && cached !== null) {
-            console.log('Cached response!');
             resultData = cached;
           } else {
-            console.log('Uncached response!');
             await getDataPaginated(step.query, options.token).then(data => {
               resultData = data;
               step.cache && redisManager.setCache(options.from + options.to + step.query, data);
