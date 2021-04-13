@@ -1,28 +1,31 @@
-var assert = require('assert');
-var request = require('request');
-var fs = require('fs');
-var path = require('path');
-var sinon = require('sinon');
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const sinon = require('sinon');
+const governify = require('governify-commons')
 
-var server = require('../server');
-var nockController = require('./nockController');
+const server = require('../server');
+const nockController = require('./nockController');
 
 // For skipping tests in case of failure
-var skip = [];
+const skip = [];
+const keep = []
 
 describe('Array', function () {
   before((done) => {
-    server.deploy('test').then(() => {
-      nockController.instantiateMockups('test').then(() => {
-        sinon.stub(console, "log");
-        done();
-      }).catch(err2 => {
-        console.log(err2.message);
-        done(err2);
+    governify.init().then(() => {
+      server.deploy('test').then(() => {
+        nockController.instantiateMockups('test').then(() => {
+          sinon.stub(console, "log");
+          done();
+        }).catch(err2 => {
+          console.log(err2.message);
+          done(err2);
+        });
+      }).catch(err1 => {
+        console.log(err1.message);
+        done(err1);
       });
-    }).catch(err1 => {
-      console.log(err1.message);
-      done(err1);
     });
   });
 
@@ -50,27 +53,27 @@ describe('Array', function () {
 function apiRestControllersTest() {
   const testRequests = JSON.parse(fs.readFileSync(path.join(__dirname, '/testRequests.json')));
   for (const testRequest of testRequests) {
-    if (!skip.includes(testRequest.name)) {
+    if ((keep.length === 0 && !skip.includes(testRequest.name)) || (keep.length !== 0 && keep.includes(testRequest.name))) {
       let computationEP;
 
       it('should respond with 200 OK on POST and have computation in body (' + testRequest.name + ')', function (done) {
         try {
           const options = {
+            method: 'POST',
             url: 'http://localhost:8081/api/v2/computations',
-            json: testRequest.body,
+            data: testRequest.body,
             headers: {
               'User-Agent': 'request'
             }
           };
-          request.post(options, (err, res, body) => {
-            if (err) {
-              assert.fail('Error on request');
-            }
-            assert.strictEqual(err, null);
-            assert.strictEqual(res.statusCode, 200);
-            assert.notStrictEqual(undefined, body.computation);
-            computationEP = body.computation;
+
+          governify.httpClient.request(options).then(response => {
+            assert.strictEqual(response.status, 200);
+            assert.notStrictEqual(undefined, response.data.computation);
+            computationEP = response.data.computation;
             done();
+          }).catch(err => {
+            assert.fail('Error on request');
           });
         } catch (err) {
           assert.fail('Error when sending request');
@@ -80,16 +83,7 @@ function apiRestControllersTest() {
       it('should respond with 202 or 200 OK on get computation and return correct metric value (' + testRequest.name + ')', function (done) {
         try {
           assert.notStrictEqual(undefined, computationEP);
-
-          const options = {
-            url: 'http://localhost:8081' + computationEP,
-            json: true,
-            headers: {
-              'User-Agent': 'request'
-            }
-          };
-
-          getComputationV2(options.url, 20000).then(computations => {
+          getComputationV2('http://localhost:8081' + computationEP, 20000).then(computations => {
             try {
               // Some evidences may change
               const original = { ...testRequest.response };
@@ -115,27 +109,27 @@ function apiRestControllersTest() {
 function apiRestNegativeControllersTest() {
   const testRequests = JSON.parse(fs.readFileSync(path.join(__dirname, '/negativeTestRequests.json')));
   for (const testRequest of testRequests) {
-    if (!skip.includes(testRequest.name)) {
+    if ((keep.length === 0 && !skip.includes(testRequest.name)) || (keep.length !== 0 && keep.includes(testRequest.name))) {
       let computationEP;
 
       it('should respond with 200 OK on POST and have computation in body (' + testRequest.name + ')', function (done) {
         try {
           const options = {
+            method: 'POST',
             url: 'http://localhost:8081/api/v2/computations',
-            json: testRequest.body,
+            data: testRequest.body,
             headers: {
               'User-Agent': 'request'
             }
           };
-          request.post(options, (err, res, body) => {
-            if (err) {
-              assert.fail('Error on request');
-            }
-            assert.strictEqual(err, null);
-            assert.strictEqual(res.statusCode, 200);
-            assert.notStrictEqual(undefined, body.computation);
-            computationEP = body.computation;
+          governify.httpClient.request(options).then(response => {
+            assert.strictEqual(response.status, 200);
+            assert.notStrictEqual(undefined, response.data.computation);
+            computationEP = response.data.computation;
             done();
+          }).catch(err => {
+            console.log(err)
+            assert.fail('Error on request');
           });
         } catch (err) {
           assert.fail('Error when sending request');
@@ -145,16 +139,7 @@ function apiRestNegativeControllersTest() {
       it('should respond with 202 or 200 OK on get computation with empty computation and correct error message (' + testRequest.name + ')', function (done) {
         try {
           assert.notStrictEqual(undefined, computationEP);
-
-          const options = {
-            url: 'http://localhost:8081' + computationEP,
-            json: true,
-            headers: {
-              'User-Agent': 'request'
-            }
-          };
-
-          getComputationV2(options.url, 20000).then(errorMessage => {
+          getComputationV2('http://localhost:8081' + computationEP, 20000).then(errorMessage => {
             try {
               console.log("\n-------------------------------\nError Message:");
               console.log(errorMessage);
@@ -184,7 +169,6 @@ function getComputationV2(computationURL, ttl) {
       const realTimeout = 20; // Minimum = firstTimeout
       const firstTimeout = 10;
       const options = {
-        json: true,
         url: computationURL,
         headers: {
           'User-Agent': 'request'
@@ -192,11 +176,8 @@ function getComputationV2(computationURL, ttl) {
       };
 
       setTimeout(() => {
-        request(options, (err, res, body) => {
-          if (err) {
-            reject(err);
-          }
-          if (res.statusCode === 202) {
+        governify.httpClient.request(options).then(httpResponse => {
+          if (httpResponse.status === 202) {
             setTimeout(() => {
               getComputationV2(computationURL, ttl - realTimeout).then(response => {
                 resolve(response);
@@ -204,17 +185,19 @@ function getComputationV2(computationURL, ttl) {
                 reject(err);
               });
             }, realTimeout - firstTimeout);
-          } else if (res.statusCode === 200) {
-            resolve(body.computations);
-          } else if (res.statusCode == 400) {
-            assert.deepStrictEqual(body.computations, []);
-            resolve(body.errorMessage);
+          } else if (httpResponse.status === 200) {
+            resolve(httpResponse.data.computations);
+          }
+        }).catch(err => {
+          if (err.response.status == 400) {
+            assert.deepStrictEqual(err.response.data.computations, []);
+            resolve(err.response.data.errorMessage);
           } else {
             console.log.restore();
             console.log("Uncontrolled error");
-            console.log(res.statusCode);
-            console.log(res.response.computation);
-            reject(new Error('Error when obtaining computation - ' + res.statusMessage));
+            console.log(err.response.status);
+            console.log(err.response.data.computation);
+            reject(new Error('Error when obtaining computation - ' + err));
           }
         });
       }, firstTimeout);

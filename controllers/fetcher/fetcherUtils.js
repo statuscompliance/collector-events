@@ -1,7 +1,7 @@
 'use strict';
 
 // const request = require('request');
-const axios = require('axios');
+const governify = require('governify-commons');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
 const temporalDB = {};
@@ -56,7 +56,7 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
       }
 
       // Make request
-      axios(options).then(data => {
+      governify.httpClient.request(options).then(data => {
         temporalDB[cacheKey] = data.data;
         setTimeout(() => {
           delete temporalDB[cacheKey];
@@ -64,6 +64,9 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
         resolve(data.data);
       }).catch(err => {
         temporalDB[cacheKey] = 'error';
+        setTimeout(() => {
+          delete temporalDB[cacheKey];
+        }, 10000);
         reject(err);
       });
     }

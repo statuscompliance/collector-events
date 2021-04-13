@@ -1,17 +1,23 @@
 'use strict';
 
+const governify = require('governify-commons');
+
 const server = require('./server');
 
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'production';
 
 if (env === 'e2e') {
-  require('./tests/nockController').instantiateMockups(env).then(() => {
-    server.deploy(env).catch(err => { console.log(err); });
-  }).catch(err => {
-    console.log(err);
+  governify.init().then(() => {
+    require('./tests/nockController').instantiateMockups(env).then(() => {
+      server.deploy(env).catch(err => { console.log(err); });
+    }).catch(err => {
+      console.log(err);
+    });
   });
 } else {
-  server.deploy(env).catch(err => { console.log(err); });
+  governify.init().then(() => {
+    server.deploy(env).catch(err => { console.log(err); });
+  });
 }
 
 // quit on ctrl-c when running docker in terminal
