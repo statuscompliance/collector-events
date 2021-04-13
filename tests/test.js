@@ -7,6 +7,8 @@ const governify = require('governify-commons')
 const server = require('../server');
 const nockController = require('./nockController');
 
+const serverUrl = "http://localhost:5500";
+
 // For skipping tests in case of failure
 const skip = [];
 const keep = []
@@ -60,7 +62,7 @@ function apiRestControllersTest() {
         try {
           const options = {
             method: 'POST',
-            url: 'http://localhost:8081/api/v2/computations',
+            url: serverUrl + '/api/v2/computations',
             data: testRequest.body,
             headers: {
               'User-Agent': 'request'
@@ -83,7 +85,7 @@ function apiRestControllersTest() {
       it('should respond with 202 or 200 OK on get computation and return correct metric value (' + testRequest.name + ')', function (done) {
         try {
           assert.notStrictEqual(undefined, computationEP);
-          getComputationV2('http://localhost:8081' + computationEP, 20000).then(computations => {
+          getComputationV2(serverUrl + computationEP, 20000).then(computations => {
             try {
               // Some evidences may change
               const original = { ...testRequest.response };
@@ -116,7 +118,7 @@ function apiRestNegativeControllersTest() {
         try {
           const options = {
             method: 'POST',
-            url: 'http://localhost:8081/api/v2/computations',
+            url: serverUrl + '/api/v2/computations',
             data: testRequest.body,
             headers: {
               'User-Agent': 'request'
@@ -139,7 +141,7 @@ function apiRestNegativeControllersTest() {
       it('should respond with 202 or 200 OK on get computation with empty computation and correct error message (' + testRequest.name + ')', function (done) {
         try {
           assert.notStrictEqual(undefined, computationEP);
-          getComputationV2('http://localhost:8081' + computationEP, 20000).then(errorMessage => {
+          getComputationV2(serverUrl + computationEP, 20000).then(errorMessage => {
             try {
               console.log("\n-------------------------------\nError Message:");
               console.log(errorMessage);
