@@ -7,11 +7,8 @@ const sourcesManager = require('../sourcesManager/sourcesManager');
 const temporalDB = {};
 
 const defaultOptions = {
-  json: true,
-  method: 'get',
-  headers: {
-    'User-Agent': 'request'
-  }
+  method: 'GET',
+  headers: {}
 };
 
 // Retrieves data from an api based on an url, and a token
@@ -42,7 +39,7 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
 
       // If POST add options
       if (data) {
-        options.method = 'post';
+        options.method = 'POST';
         options.data = data;
       }
 
