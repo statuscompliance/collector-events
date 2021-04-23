@@ -181,11 +181,7 @@ function getComputationV2(computationURL, ttl) {
         governify.httpClient.request(options).then(httpResponse => {
           if (httpResponse.status === 202) {
             setTimeout(() => {
-              getComputationV2(computationURL, ttl - realTimeout).then(response => {
-                resolve(response);
-              }).catch(err => {
-                reject(err);
-              });
+              resolve(getComputationV2(computationURL, ttl - realTimeout));
             }, realTimeout - firstTimeout);
           } else if (httpResponse.status === 200) {
             resolve(httpResponse.data.computations);
