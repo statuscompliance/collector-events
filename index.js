@@ -7,16 +7,16 @@ const server = require('./server');
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'production';
 
 if (env === 'e2e') {
-  governify.init().then(() => {
+  governify.init().then((commonsMiddleware) => {
     require('./tests/nockController').instantiateMockups(env).then(() => {
-      server.deploy(env).catch(err => { console.log(err); });
+      server.deploy(env, commonsMiddleware).catch(err => { console.log(err); });
     }).catch(err => {
       console.log(err);
     });
   });
 } else {
-  governify.init().then(() => {
-    server.deploy(env).catch(err => { console.log(err); });
+  governify.init().then((commonsMiddleware) => {
+    server.deploy(env, commonsMiddleware).catch(err => { console.log(err); });
   });
 }
 

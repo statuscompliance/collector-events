@@ -15,8 +15,8 @@ const keep = []
 
 describe('Array', function () {
   before((done) => {
-    governify.init().then(() => {
-      server.deploy('test').then(() => {
+    governify.init().then((commonsMiddleware) => {
+      server.deploy('test', commonsMiddleware).then(() => {
         nockController.instantiateMockups('test').then(() => {
           sinon.stub(console, "log");
           done();

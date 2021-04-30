@@ -28,6 +28,11 @@ internal:
   director:
     default: 'standard'
     standard: 'http://localhost:5800'
+  database:
+    default: 'mongo-registry'
+    mongo-registry: 'mongodb://localhost:5001'
+    influx-reporter: 'http://localhost:5002'
+    redis-ec: 'redis://localhost:5003'
 external:
   render:
     default: 'angular'
