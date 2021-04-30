@@ -63,7 +63,8 @@ const getInfo = (options) => {
 // TODO - Pagination
 const getDataPaginated = (query, token) => {
   return new Promise((resolve, reject) => {
-    fetcherUtils.requestWithHeaders(apiUrl + '/graphql', { Authorization: token }, { query: query }).then((data) => {
+    const requestConfig = token ? { Authorization: token } : {};
+    fetcherUtils.requestWithHeaders(apiUrl + '/graphql', requestConfig, { query: query }).then((data) => {
       resolve(data);
     }).catch(err => {
       console.log(err);
