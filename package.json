@@ -23,7 +23,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.16.3",
-    "governify-commons": "^1.8.6",
+    "governify-commons": "1.x",
     "js-yaml": "^3.3.0",
     "mustache": "^4.0.1",
     "nock": "^12.0.3",
