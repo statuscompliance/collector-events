@@ -1,7 +1,7 @@
 'use strict';
 
-var crypto = require('crypto');
-const request = require('request');
+const crypto = require('crypto');
+const governify = require('governify-commons');
 const fs = require('fs');
 const mustache = require('mustache');
 mustache.escape = function (text) { return text; };
@@ -197,20 +197,19 @@ const getScopeInfo = (url, scope) => {
         }
       };
 
-      request(options, (err, res, body) => {
-        if (err) {
-          reject(new Error('Failed when requesting to ScopeManager'));
-          console.log(err);
-        }
-        if (body && body.code === 404) {
+      governify.httpClient.request(options).then(response => {
+        resolve(response.data);
+      }).catch(err => {
+        if (err.response && err.response.status === 404) {
           if (scope) {
             reject(new Error('Project scope not found.\nProjectScopeId: ' + scope.project + ', ClassScopeId: ' + scope.class));
           } else {
             reject(new Error('Error: No scope was given.'));
           }
-          console.log('Error: Scope Manager 404 Response:', body.message);
+          console.log('Error: Scope Manager 404 Response:', err.response.data.message);
         } else {
-          resolve(body);
+          console.log('err:', err);
+          reject(new Error('Failed when requesting to ScopeManager'));
         }
       });
     } catch (err) {

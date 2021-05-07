@@ -1,7 +1,8 @@
+const governify = require('governify-commons');
 const redis = require('redis');
+
 const redisClient = redis.createClient({
-  host: process.env.REDIS_HOSTNAME ? process.env.REDIS_HOSTNAME : 'localhost',
-  port: process.env.REDIS_PORT ? process.env.REDIS_PORT : '6379',
+  url: governify.infrastructure.getServiceURL('internal.database.redis-ec'),
   retry_strategy: function (options) {
     if (options.attempt > 5) {
       return new Error('Retry attemps exhausted (5)');
