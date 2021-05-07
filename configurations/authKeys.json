@@ -1,9 +1,10 @@
 {
-    "scopeManager": "$_[KEY_SCOPE_MANAGER]$_[^KEY_SCOPE_MANAGER]d2c55f937db9574ba358ac2b9b403523$_[/KEY_SCOPE_MANAGER]",
+    "scopeManager": "$_[KEY_SCOPE_MANAGER]$_[^KEY_SCOPE_MANAGER]c025ff8502893fc6c5a87cf3febe4882$_[/KEY_SCOPE_MANAGER]",
     "github": "$_[KEY_GITHUB]",
     "pivotal": "$_[KEY_PIVOTAL]",
     "heroku": "$_[KEY_HEROKU]",
-    "travis": "$_[KEY_TRAVIS]",
+    "travis_public": "$_[KEY_TRAVIS_PUBLIC]",
+    "travis_private": "$_[KEY_TRAVIS_PRIVATE]",
     "codeclimate": "$_[KEY_CODECLIMATE]",
     "pseudonymizer": "$_[KEY_PSEUDONYMIZER]"
 }

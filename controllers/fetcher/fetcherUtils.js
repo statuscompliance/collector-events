@@ -1,31 +1,31 @@
 'use strict';
 
 // const request = require('request');
-const axios = require('axios');
+const governify = require('governify-commons');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
 const temporalDB = {};
 
 const defaultOptions = {
-  json: true,
-  method: 'get',
-  headers: {
-    'User-Agent': 'request'
-  }
+  method: 'GET',
+  headers: {}
 };
 
 // Retrieves data from an api based on an url, and a token
 const requestWithHeaders = (url, extraHeaders, data = undefined) => {
   return new Promise((resolve, reject) => {
-    if (Object.keys(temporalDB).includes(url)) {
-      requestResolveCache(url).then(data => {
+    // Cache key for GET and POST requests
+    const cacheKey = !data ? url : url + JSON.stringify(data);
+
+    if (Object.keys(temporalDB).includes(cacheKey)) {
+      requestResolveCache(cacheKey).then(data => {
         resolve(data);
       }).catch(err => {
         reject(err);
       });
     } else {
       // Set temporal db to undefined for not requesting multiple times
-      temporalDB[url] = undefined;
+      temporalDB[cacheKey] = undefined;
 
       // Create request
       const options = { ...defaultOptions };
@@ -39,7 +39,7 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
 
       // If POST add options
       if (data) {
-        options.method = 'post';
+        options.method = 'POST';
         options.data = data;
       }
 
@@ -53,60 +53,22 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
       }
 
       // Make request
-      axios(options).then(data => {
-        // console.log(data)
-        temporalDB[url] = data.data;
+      governify.httpClient.request(options).then(data => {
+        temporalDB[cacheKey] = data.data;
         setTimeout(() => {
-          delete temporalDB[url];
-        }, 6000);
+          delete temporalDB[cacheKey];
+        }, 10000);
         resolve(data.data);
       }).catch(err => {
-        temporalDB[url] = 'error';
+        temporalDB[cacheKey] = 'error';
+        setTimeout(() => {
+          delete temporalDB[cacheKey];
+        }, 10000);
         reject(err);
       });
     }
   });
 };
-
-/* const requestWithHeaders = (url, extraHeaders) => {
-  return new Promise((resolve, reject) => {
-    if (Object.keys(temporalDB).includes(url)) {
-      requestResolveCache(url).then(data => {
-        resolve(data);
-      }).catch(err => {
-        reject(err);
-      });
-    } else {
-      temporalDB[url] = undefined;
-
-      const options = { ...defaultOptions };
-      options.headers = { ...defaultOptions.headers };
-      const extraHeaderKeys = Object.keys(extraHeaders);
-
-      for (const key of extraHeaderKeys) {
-        options.headers[key] = extraHeaders[key];
-      }
-      options.url = url;
-
-      if (process.env.PSEUDONYMIZER_URL) {
-        options.url = process.env.PSEUDONYMIZER_URL + options.url;
-        options.headers['pseudonymizer-token'] = process.env.PSEUDONYMIZER_TOKEN;
-      }
-
-      request(options, (err, res, body) => {
-        if (err) {
-          temporalDB[url] = 'error';
-          reject(err);
-        }
-        temporalDB[url] = body;
-        setTimeout(() => {
-          delete temporalDB[url];
-        }, 6000);
-        resolve(body);
-      });
-    }
-  });
-}; */
 
 const requestResolveCache = (url) => {
   return new Promise((resolve, reject) => {
@@ -125,6 +87,7 @@ const requestResolveCache = (url) => {
     }
   });
 };
+
 // Recursive function to see if item contains the items of mustMatch
 const filterMustMatch = (item, mustMatch) => {
   return new Promise((resolve, reject) => {

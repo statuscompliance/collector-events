@@ -25,7 +25,7 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
         mainEvents[mainEventType] = events;
         evidences = events;
         // We call getMetric to obtain the metric and evidences depending on the type
-        getMetricAndEvidences(dsl, from, to, { ...integrations }, { ...mainEvents }, mainEventType, [...evidences], metricType, authKeys, member).then(result => {
+        getMetricAndEvidences(dsl, from, to, { ...integrations }, { ...mainEvents }, mainEventType, [...evidences], metricType, authKeys, member, dsl.event).then(result => {
           resolve(result);
         }).catch(err => {
           reject(err);
@@ -40,7 +40,7 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
 };
 
 // Function that return a metric and evidences depending on the metric type
-const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEventType, originalEvidences, metricType, authKeys, member) => {
+const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEventType, originalEvidences, metricType, authKeys, member, mainEventObject) => {
   return new Promise((resolve, reject) => {
     try {
       let metric;
@@ -59,7 +59,7 @@ const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEven
           const secondaryEventFrom = new Date(Date.parse(from) - (window * 1000)).toISOString();
           const secondaryEventTo = new Date(Date.parse(to) + (window * 1000)).toISOString();
 
-          getEventMatches(relatedObject, mainEvents, Object.keys(dsl.event[mainEventType])[0], secondaryEventFrom, secondaryEventTo, { ...integrations }, authKeys, member).then((eventMatches) => {
+          getEventMatches(relatedObject, mainEvents, Object.keys(dsl.event[mainEventType])[0], secondaryEventFrom, secondaryEventTo, { ...integrations }, authKeys, member, mainEventObject).then((eventMatches) => {
             percentageNum = eventMatches.length;
             evidences = eventMatches;
             if (metricType === 'percentage') {
@@ -179,7 +179,7 @@ const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEven
 };
 
 // From a "specified related json" finds the matches of the events based on a time window
-const getEventMatches = (relatedObject, mainEventsObject, mainEndpointType, from, to, integrations, authKeys, member) => {
+const getEventMatches = (relatedObject, mainEventsObject, mainEndpointType, from, to, integrations, authKeys, member, mainEventObject) => {
   return new Promise((resolve, reject) => {
     try {
       const relatedKeys = Object.keys(relatedObject);
@@ -198,8 +198,10 @@ const getEventMatches = (relatedObject, mainEventsObject, mainEndpointType, from
           const mainEventType = Object.keys(mainEventsObject)[0];
           var mainEvents = mainEventsObject[mainEventType];
 
-          findMatches(mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, Object.keys(relatedObject[secondaryEventType])[0], relatedObject).then(foundMatches => {
+          findMatches(mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, Object.keys(relatedObject[secondaryEventType])[0], relatedObject, mainEventObject).then(foundMatches => {
             resolve(foundMatches);
+          }).catch(err => {
+            reject(err);
           });
         }).catch((err) => {
           reject(err);
@@ -219,42 +221,44 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
       const endpointType = Object.keys(json[eventType])[0];
       if (endpointType === 'custom') {
         if (json[eventType].custom.type === 'graphQL') {
-          const query = json[eventType].custom.query;
-          const match = JSON.parse(JSON.stringify(json[eventType].custom.match));
-          const steps = Object.keys(match);
+          const steps = JSON.parse(JSON.stringify(json[eventType].custom.steps));
 
-          // Substitute filters with member
+          // Substitute query integrations
+          Object.keys(steps).filter(stepKeyElement => ['queryGetObject', 'queryGetObjects'].includes(steps[stepKeyElement].type)).forEach(queryKey => {
+            steps[queryKey].query = steps[queryKey].query.replace('%PROJECT.github.repository%', integrations.github.repository).replace('%PROJECT.github.repoOwner%', integrations.github.repoOwner);
+          });
+
+          // Substitute match filters with member
           if (member) {
-            for (const step of steps) {
-              const memberRegex = /%MEMBER\.[a-zA-Z0-9.]+%/g;
+            const memberRegex = /%MEMBER\.[a-zA-Z0-9.]+%/g;
+            // For each step that its type is objectsFilterObject or objectsFilterObjects
+            for (const stepKey of Object.keys(steps).filter(stepKeyElement => ['objectsFilterObject', 'objectsFilterObjects'].includes(steps[stepKeyElement].type))) {
               const newFilters = [];
-              for (let filter of match[step].filters) {
-                if (memberRegex.test(filter)) {
-                  const matches = filter.match(memberRegex);
-                  for (const matchString of matches) {
-                    const splitted = matchString.replace(/%/g, '').replace('MEMBER.', '').split('.');
-                    const identity = member.identities.filter(e => e.source === splitted[0])[0];
-                    if (identity) {
-                      filter = filter.replace(matchString, identity[splitted[1]]);
-                    }
+              // For each filter with a regex match
+              for (let filter of steps[stepKey].filters.filter(filterElement => memberRegex.test(filterElement))) {
+                // For each regex match in the filter
+                for (const regexMatch of filter.match(memberRegex)) {
+                  const splitted = regexMatch.replace(/%/g, '').replace('MEMBER.', '').split('.');
+                  const identity = member.identities.filter(e => e.source === splitted[0])[0];
+                  if (identity) {
+                    filter = filter.replace(regexMatch, identity[splitted[1]]);
                   }
                 }
+
                 newFilters.push(filter);
               }
-              match[step].filters = newFilters;
+
+              // Replace substituted filters with the new filters and the non substituted ones
+              steps[stepKey].filters = newFilters.concat(steps[stepKey].filters.filter(filterElement => !memberRegex.test(filterElement)));
             }
           }
-
-          console.log(JSON.stringify(match, null, 4));
 
           githubGQLFetcher
             .getInfo({
               from: from,
               to: to,
-              githubIdentities: integrations.github,
               token: generateToken(integrations.github.apiKey, authKeys.github, 'token '),
-              query: query,
-              match: match
+              steps: steps
             })
             .then((data) => {
               resolve(data);
@@ -345,7 +349,7 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                   .getInfo({
                     from: from,
                     to: to,
-                    token: generateToken(integrations.travis.apiKey, authKeys.travis, 'token '),
+                    token: generateToken(integrations.travis.apiKey, endpointType.includes('private') ? authKeys.travis_private : authKeys.travis_public, 'token '),
                     endpoint: endpoint,
                     endpointType: endpointType,
                     mustMatch: mustMatch,
@@ -401,22 +405,28 @@ const generateToken = (primary, secondary, prefix) => {
   }
 };
 
-const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject) => {
+const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject, mainEventObject) => {
   return new Promise((resolve, reject) => {
     try {
       const matches = [];
       for (const mainEvent of mainEvents) {
         for (const secondaryEvent of secondaryEvents) {
           // Get event dates
-          const mainEventDate = Date.parse(sourcesManager.getEventDate(mainEventType, mainEndpointType, mainEvent));
-          const secondaryEventDate = Date.parse(sourcesManager.getEventDate(secondaryEventType, secondaryEndpointType, secondaryEvent));
-          if (mainEventDate === undefined) { reject(new Error('No payload date for this API (' + mainEventType + ')')); }
-          if (secondaryEventDate === undefined) { reject(new Error('No payload date for this API (' + secondaryEventType + ')')); }
+          let mainEventDate = Date.parse(sourcesManager.getEventDate(mainEventType, mainEndpointType, mainEvent));
+          let secondaryEventDate = Date.parse(sourcesManager.getEventDate(secondaryEventType, secondaryEndpointType, secondaryEvent));
+          // if (isNaN(mainEventDate)) { console.log('No payload date for this API (' + mainEventType, mainEndpointType + ')'); }
+          // if (isNaN(secondaryEventDate)) { console.log('No payload date for this API (' + secondaryEventType + ')'); }
+
+          // No Date problem
+          isNaN(mainEventDate) && (mainEventDate = Date.now());
+          isNaN(secondaryEventDate) && (secondaryEventDate = Date.now());
 
           // Match filters
-          const actualEventPayload = relatedObject[secondaryEventType][Object.keys(relatedObject[secondaryEventType])[0]];
-          const window = relatedObject.window ? relatedObject.window : 86400 * 365 * 4; // 4 years window if not stated (undefined window)
-          if ((Math.abs(mainEventDate - secondaryEventDate) / 1000) < window && matchBinding(mainEvent, secondaryEvent, actualEventPayload)) {
+          const mainEventDSL = mainEventObject[mainEventType][Object.keys(mainEventObject[mainEventType])[0]];
+          const secondaryEventDSL = relatedObject[secondaryEventType][Object.keys(relatedObject[secondaryEventType])[0]];
+
+          const window = relatedObject.window ? relatedObject.window : 86400 * 365 * 10; // 10 years window if not stated (undefined window)
+          if ((Math.abs(mainEventDate - secondaryEventDate) / 1000) < window && matchBinding(mainEvent, secondaryEvent, secondaryEventDSL) && matchBinding(secondaryEvent, mainEvent, mainEventDSL)) {
             matches.push([mainEvent, secondaryEvent]);
           }
 
@@ -432,9 +442,9 @@ const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvent
         trimmedMainEvents.splice(mainEvents.indexOf(matches[0][0]), 1);
         trimmedSecondaryEvents.splice(secondaryEvents.indexOf(matches[0][1]), 1);
 
-        findMatches(trimmedMainEvents, mainEventType, mainEndpointType, trimmedSecondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject).then(newMatches => {
+        findMatches(trimmedMainEvents, mainEventType, mainEndpointType, trimmedSecondaryEvents, secondaryEventType, secondaryEndpointType, relatedObject, mainEventObject).then(newMatches => {
           resolve(matches.concat(newMatches));
-        });
+        }).catch(err => reject(err));
       } else {
         resolve(matches);
       }

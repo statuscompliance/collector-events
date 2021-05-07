@@ -37,18 +37,19 @@ module.exports.instantiateMockups = (env) => {
 const buildMockups = (mockups, filename, logs = false) => {
   return new Promise((resolve, reject) => {
     try {
-      for (const mockup of JSON.parse(mockups)) {
+      for (const mockup of JSON.parse(mockups)) { // TODO - Proper reply status code (add to requests.json)
+        const responseCode = parseInt(mockup.response.code) || 200;
         if (mockup.type === 'GET') {
           if (logs) {
-            nock(mockup.requestAPI, { allowUnmocked: true }).log(console.log).get(mockup.requestEndpoint).times(1000).reply(200, mockup.response);
+            nock(mockup.requestAPI, { allowUnmocked: true }).log(console.log).get(mockup.requestEndpoint).times(1000).reply(responseCode, mockup.response);
           } else {
-            nock(mockup.requestAPI, { allowUnmocked: true }).get(mockup.requestEndpoint).times(1000).reply(200, mockup.response);
+            nock(mockup.requestAPI, { allowUnmocked: true }).get(mockup.requestEndpoint).times(1000).reply(responseCode, mockup.response);
           }
         } else if (mockup.type === 'POST') {
           if (logs) {
-            nock(mockup.requestAPI, { allowUnmocked: true }).log(console.log).post(mockup.requestEndpoint, mockup.body).times(1000).reply(200, mockup.response);
+            nock(mockup.requestAPI, { allowUnmocked: true }).log(console.log).post(mockup.requestEndpoint, mockup.body).times(1000).reply(responseCode, mockup.response);
           } else {
-            nock(mockup.requestAPI, { allowUnmocked: true }).post(mockup.requestEndpoint, mockup.body).times(1000).reply(200, mockup.response);
+            nock(mockup.requestAPI, { allowUnmocked: true }).post(mockup.requestEndpoint, mockup.body).times(1000).reply(responseCode, mockup.response);
           }
         }
       }

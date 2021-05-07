@@ -1,6 +1,6 @@
 'use strict';
 
-const deploy = (env) => {
+const deploy = (env, commonsMiddleware) => {
   return new Promise((resolve, reject) => {
     try {
       var fs = require('fs');
@@ -14,9 +14,10 @@ const deploy = (env) => {
       app.use(bodyParser.json({
         strict: false
       }));
+      app.use('/commons', commonsMiddleware);
       var oasTools = require('oas-tools');
       var jsyaml = require('js-yaml');
-      var serverPort = process.env.PORT || 8081;
+      var serverPort = process.env.PORT || 5500;
 
       var spec = fs.readFileSync(path.join(__dirname, '/api/oas-doc.yaml'), 'utf8');
       var oasDoc = jsyaml.safeLoad(spec);

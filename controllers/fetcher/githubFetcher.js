@@ -92,7 +92,8 @@ const getDataPaginated = (url, token, to, page = 1) => {
         resolve([]);
       }
     } else {
-      fetcherUtils.requestWithHeaders(requestUrl, { Authorization: token }).then((data) => {
+      const requestConfig = token ? { Authorization: token } : {};
+      fetcherUtils.requestWithHeaders(requestUrl, requestConfig).then((data) => {
         if (data.length && data.length !== 0) {
           cacheData(data, requestUrl, to);
           getDataPaginated(url, token, to, page + 1).then(recData => {
