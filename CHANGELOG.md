@@ -1,3 +1,40 @@
+# [1.8.0](https://github.com/governify/collector-events/compare/v1.7.0...v1.8.0) (2021-05-07)
+
+
+### Bug Fixes
+
+* binding on both main and related ([637f569](https://github.com/governify/collector-events/commit/637f56984838af988048b2a9febc466ea62d00ca))
+* e2e pipeline ([fc68b64](https://github.com/governify/collector-events/commit/fc68b64b48eb4540dba746a52c27902cf2176438))
+* github authorization ([93f9ca5](https://github.com/governify/collector-events/commit/93f9ca59b0018e1aa03761a583e63b912d6f9bd6))
+* lint ([6abf092](https://github.com/governify/collector-events/commit/6abf092e3dcf5c9c98319733203d282129158eb3))
+* mockups ([9f2e90a](https://github.com/governify/collector-events/commit/9f2e90a9b6e5477174302f5992a2ae0a9c1910c4))
+* POST requests temporal cache ([5eac955](https://github.com/governify/collector-events/commit/5eac95527e3beb7d275ad59bfeaacb497c3213f6))
+* problem with dates (custom) ([dda7e56](https://github.com/governify/collector-events/commit/dda7e5607b53473e58f88b926634e875b8769a7c))
+* removed console.logs ([07af43a](https://github.com/governify/collector-events/commit/07af43aa92175d85b46497b1c1da30e32385c5ce))
+* scope manager key ([4450971](https://github.com/governify/collector-events/commit/445097120c63090a782e1d0b5851b2b9920db620))
+* travis public-private apikey ([736970e](https://github.com/governify/collector-events/commit/736970e34b25e038e8dcb7e0939add9daa43a23e))
+
+
+### Features
+
+* cache with redis working ([9453d51](https://github.com/governify/collector-events/commit/9453d510eb43d152998e67f0e1942107a4ce21e7))
+* commons middleware and db ([fa39529](https://github.com/governify/collector-events/commit/fa395293e7d47c47595bbb05071411aaf43ed63e))
+* generalized for steps ([1cb70f1](https://github.com/governify/collector-events/commit/1cb70f1ae629bdeb37e26285a4785ad6e29a8b27))
+* generalized repo owner name and docs ([49c633a](https://github.com/governify/collector-events/commit/49c633a008af805f40df02bd8d26d9248166e691))
+* github-graphql test ([3552793](https://github.com/governify/collector-events/commit/355279351a8d700a38903b4c075bddf6b11a32e2))
+* governify-commons requests substituted ([a9ea461](https://github.com/governify/collector-events/commit/a9ea461699d63c70a45a70aaedb62ab8d0162ad6))
+* new infrastructure port (5500) ([1da0bb2](https://github.com/governify/collector-events/commit/1da0bb24389d5c8c3426e5e315860773edb3039a))
+* query to string ([c5298c4](https://github.com/governify/collector-events/commit/c5298c4604909e716a9f2bae42a36983d688f2fe))
+* redis on tests ([7f841da](https://github.com/governify/collector-events/commit/7f841dac5e20361a23c0928a5fdd53ea6232e483))
+* simplified recursion call ([02cfc20](https://github.com/governify/collector-events/commit/02cfc20c51e0978330c59bcc70252fc6e9d6066d))
+* simplified request method ([80f6f21](https://github.com/governify/collector-events/commit/80f6f211a0573b6cce6044810e3f2d6c6b980589))
+* step filtering ([be8c697](https://github.com/governify/collector-events/commit/be8c697a7de12e64ea13e01a262fd02bd1459c82))
+* update commons ([c6018d3](https://github.com/governify/collector-events/commit/c6018d3c56e3dfd50a5af9e4b89214498b79fbff))
+* updated governify-commons ([fba6b88](https://github.com/governify/collector-events/commit/fba6b88e105d0eca65c22c65881f8f92e06ee259))
+* upgrade commons ([5627649](https://github.com/governify/collector-events/commit/56276497c773f2e252517c829aa53e14e2584547))
+
+
+
 # [1.7.0](https://github.com/governify/collector-events/compare/v1.6.0...v1.7.0) (2021-02-25)
 
 
