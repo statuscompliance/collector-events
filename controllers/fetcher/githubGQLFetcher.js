@@ -51,6 +51,8 @@ const getInfo = (options) => {
               default:
             }
           }
+        } else if (step.type === 'runScript') {
+          resultData = requireFromString(step.script).generic(resultData, { ...step.variables, from: options.from, to: options.to });
         }
       }
       resolve(resultData);
@@ -59,11 +61,20 @@ const getInfo = (options) => {
     }
   });
 };
+
+// Require() file from string
+function requireFromString (src, filename = 'default') {
+  var Module = module.constructor;
+  var m = new Module();
+  m._compile(src, filename);
+  return m.exports;
+}
+
 // Paginates github data to retrieve everything
 // TODO - Pagination
 const getDataPaginated = (query, token) => {
   return new Promise((resolve, reject) => {
-    const requestConfig = token ? { Authorization: token } : {};
+    const requestConfig = token ? { Authorization: token, Accept: 'application/vnd.github.starfox-preview+json' } : {};
     fetcherUtils.requestWithHeaders(apiUrl + '/graphql', requestConfig, { query: query }).then((data) => {
       resolve(data);
     }).catch(err => {

@@ -1,32 +1,14 @@
 const query = `{
-  repository(name: "X", owner: "Y") {
-    projects(first: 1) {
+  repository(name: "%PROJECT.github.repository%", owner: "%PROJECT.github.repoOwner%") {
+    issues(first: 100) {
       nodes {
-        name
-        columns(first: 10) {
+        timelineItems(last: 100) {
           nodes {
-            name
-            cards(first: 100) {
-              totalCount
-              nodes {
-                column {
-                  name
-                }
-                content {
-                  ... on Issue {
-                    url
-                    number
-                    title
-                    createdAt
-                    updatedAt
-                    assignees(first: 10) {
-                      nodes {
-                        login 
-                      }
-                    }
-                  }
-                }
-              }
+            ... on MovedColumnsInProjectEvent {
+              id
+              createdAt
+              projectColumnName
+              previousProjectColumnName 
             }
           }
         }
