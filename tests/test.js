@@ -18,7 +18,7 @@ describe('Array', function () {
     governify.init().then((commonsMiddleware) => {
       server.deploy('test', commonsMiddleware).then(() => {
         nockController.instantiateMockups('test').then(() => {
-          sinon.stub(console, "log");
+          sinon.stub(console);
           done();
         }).catch(err2 => {
           console.log(err2.message);
