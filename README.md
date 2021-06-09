@@ -298,7 +298,45 @@ If the filter is *objectsFilterObjects*, the keep parameter is no longer needed.
 
 Here, information about the members can be included to compare for example, the content of an object key to be the username of a github username, as it can be seen in the example.
 
+#### **Step type: runScript**
+This step expects anything and is passed in to a function exported as generic. It's expected to return a response in the form of an object/array or another kind in case it is compatible with the metric.
 
+To this date it can receive two parametters:
+- `script`: It is a function exported as generic and receives two inputs: the data being filtered/obtained from the steps executed before it and an object containing variables to generalize the script and modify different filters/conditions inside the script. It must return the processed data in order to move to the next pipeline or to be returned. This script has to be [scaped](https://www.freeformatter.com/json-escape.html#ad-output) in order to fit in the TPA as a JSON.
+- `variables`: This is the object passed to the script containing the variabilization. The collector will also add to the object two keys (from, to) containing the window for filtering the information.
 
+This is an example of a script without being scaped:
+
+```javascript
+module.exports.generic = function generic(inputData, variables) {
+    function transitionAndDateFilter(timelineItem) {
+        return timelineItem.projectColumnName &&
+            timelineItem.projectColumnName === variables.actualProjectColumnName &&
+            timelineItem.previousProjectColumnName === variables.previousProjectColumnName &&
+            new Date(timelineItem.createdAt) > new Date(variables.from) &&
+            new Date(timelineItem.createdAt) < new Date(variables.to);
+    }
+    function hasTimelineItems(issue) {
+        return issue.timelineItems.length !== 0;
+    }
+    return inputData.map(issue => {
+        return { ...issue, timelineItems: issue.timelineItems.nodes.filter(transitionAndDateFilter) }
+    }).filter(hasTimelineItems);
+}
+```
+
+It takes data from GitHub GQL API containing information about the cards (project card moves - old columnd and new column) and applies filters based on the variables it is passed to. The step would look like this:
+
+```json
+{
+    "type": "runScript",
+    "variables": {
+        "previousProjectColumnName": "In progress",
+        "actualProjectColumnName": "In review"
+    },
+    "script": "module.exports.generic = function filterIssuesByTimelineItems(inputData, variables) {\r\n    function transitionAndDateFilter(timelineItem) {\r\n        return timelineItem.projectColumnName &&\r\n            timelineItem.projectColumnName === variables.actualProjectColumnName &&\r\n            timelineItem.previousProjectColumnName === variables.previousProjectColumnName &&\r\n            new Date(timelineItem.createdAt) > new Date(variables.from) &&\r\n            new Date(timelineItem.createdAt) < new Date(variables.to);\r\n    }\r\n    function hasTimelineItems(issue) {\r\n        return issue.timelineItems.length !== 0;\r\n    }\r\n    return inputData.map(issue => {\r\n        return { ...issue, timelineItems: issue.timelineItems.nodes.filter(transitionAndDateFilter) }\r\n    }).filter(hasTimelineItems);\r\n}"
+}
+```
+As it can be seen it will filter and keep issues whose cards have been moved from a column called "In progress" to a column called "In review". It will also use the from and to  filter the data.
 
 
