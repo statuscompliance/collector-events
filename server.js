@@ -7,6 +7,7 @@ const deploy = (env, commonsMiddleware) => {
       var http = require('http');
       var path = require('path');
       require('dotenv').config();
+      const logger = require('governify-commons').getLogger().tag('server');
 
       var express = require('express');
       var app = express();
@@ -35,11 +36,11 @@ const deploy = (env, commonsMiddleware) => {
       oasTools.initialize(oasDoc, app, function () {
         http.createServer(app).listen(serverPort, function () {
           if (env !== 'test') {
-            console.log('App running at http://localhost:' + serverPort);
-            console.log('________________________________________________________________');
+            logger.info('App running at http://localhost:' + serverPort);
+            logger.info('________________________________________________________________');
             if (optionsObject.docs !== false) {
-              console.log('API docs (Swagger UI) available on http://localhost:' + serverPort + '/docs');
-              console.log('________________________________________________________________');
+              logger.info('API docs (Swagger UI) available on http://localhost:' + serverPort + '/docs');
+              logger.info('________________________________________________________________');
             }
           }
           resolve();

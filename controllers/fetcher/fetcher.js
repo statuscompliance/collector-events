@@ -1,5 +1,6 @@
 'use strict';
 
+const logger = require('governify-commons').getLogger().tag('fetcher');
 const githubFetcher = require('./githubFetcher');
 const githubGQLFetcher = require('./githubGQLFetcher');
 const ghwrapperFetcher = require('./ghwrapperFetcher');
@@ -106,12 +107,12 @@ const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEven
             }
 
             if (value === undefined) {
-              console.log('error - Fetcher.compute: Undefined value (', dsl.element.value.parameter, ') for item:\n', item);
+              logger.error('Fetcher.compute: Undefined value (', dsl.element.value.parameter, ') for item:\n', item);
             } else {
               values.push(value);
             }
           } catch (err) {
-            console.log('error - Fetcher.compute: Could not extract value (', dsl.element.value.parameter, ') from item:\n', item);
+            logger.error('Fetcher.compute: Could not extract value (', dsl.element.value.parameter, ') from item:\n', item);
           }
         }
 
@@ -266,7 +267,7 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
               reject(err);
             });
         } else {
-          console.log('Custom request type not valid: ' + json[eventType].custom.type);
+          logger.error('Custom request type not valid: ' + json[eventType].custom.type);
           resolve([]);
         }
       } else {
@@ -400,7 +401,7 @@ const generateToken = (primary, secondary, prefix) => {
 
     return result;
   } catch (err) {
-    console.log('Error fetcher.generateToken:', err.message);
+    logger.error('fetcher.generateToken:', err.message);
     return '';
   }
 };
@@ -414,8 +415,8 @@ const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvent
           // Get event dates
           let mainEventDate = Date.parse(sourcesManager.getEventDate(mainEventType, mainEndpointType, mainEvent));
           let secondaryEventDate = Date.parse(sourcesManager.getEventDate(secondaryEventType, secondaryEndpointType, secondaryEvent));
-          // if (isNaN(mainEventDate)) { console.log('No payload date for this API (' + mainEventType, mainEndpointType + ')'); }
-          // if (isNaN(secondaryEventDate)) { console.log('No payload date for this API (' + secondaryEventType + ')'); }
+          // if (isNaN(mainEventDate)) { logger.error('No payload date for this API (' + mainEventType, mainEndpointType + ')'); }
+          // if (isNaN(secondaryEventDate)) { logger.error('No payload date for this API (' + secondaryEventType + ')'); }
 
           // No Date problem
           isNaN(mainEventDate) && (mainEventDate = Date.now());
@@ -489,13 +490,13 @@ const matchBinding = (mainEvent, secondaryEvent, relatedObject) => {
           res = false;
         }
       } else {
-        console.log('fetcher.matchBinding: Unknown binding type:', bindingType);
+        logger.error('fetcher.matchBinding: Unknown binding type:', bindingType);
         res = false;
       }
     }
     return res;
   } catch (err) {
-    console.log('fetcher.matchBinding: Failed matching bindings:\n', err);
+    logger.error('fetcher.matchBinding: Failed matching bindings:\n', err);
     return false;
   }
 };
@@ -516,7 +517,7 @@ const findBindingElement = (element, location = '') => {
 
     return [];
   } catch (err) {
-    console.log('fetcher.findBindingElement failed:\n', err);
+    logger.error('fetcher.findBindingElement failed:\n', err);
     return [];
   }
 };

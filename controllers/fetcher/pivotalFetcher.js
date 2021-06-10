@@ -1,6 +1,7 @@
 'use strict';
 
 const fetcherUtils = require('./fetcherUtils');
+const logger = require('governify-commons').getLogger().tag('fetcher-pivotal');
 
 const apiUrl = 'https://www.pivotaltracker.com/services/v5';
 const eventType = 'pivotal';
@@ -52,7 +53,7 @@ const getDataPaginated = (url, token, offset = 0) => {
             resolve(data.concat(recData));
           }).catch((err) => { reject(err); });
         } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
-          console.log('Problem when requesting PT payload:\n', data);
+          logger.error('Problem when requesting PT payload:\n', data);
 
           if (data.kind === 'error') {
             if (data.error.includes('The object you tried to access could not be found.')) {

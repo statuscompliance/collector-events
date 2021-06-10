@@ -1,4 +1,5 @@
 const governify = require('governify-commons');
+const logger = governify.getLogger().tag('redis-manager');
 const redis = require('redis');
 
 const redisClient = redis.createClient({
@@ -8,7 +9,7 @@ const redisClient = redis.createClient({
       return new Error('Retry attemps exhausted (5)');
     }
     if (options.error && options.error.code === 'ECONNREFUSED') {
-      console.log('Error: Failed connecting to redis(ECONNREFUSED). Retrying in 1s');
+      logger.error('Error: Failed connecting to redis(ECONNREFUSED). Retrying in 1s');
       return 1000;
     }
     return 1000;

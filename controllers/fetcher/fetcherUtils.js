@@ -2,6 +2,7 @@
 
 // const request = require('request');
 const governify = require('governify-commons');
+const logger = governify.getLogger().tag('fetcher-utils');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
 const temporalDB = {};
@@ -157,7 +158,7 @@ const filterMustMatch = (item, mustMatch) => {
         reject(err);
       });
     } catch (err) {
-      reject(new Error('error - filterMustMatch: Comparing mustMatch failed:\n' + err.message));
+      reject(new Error('filterMustMatch: Comparing mustMatch failed:\n' + err.message));
     }
   });
 };
@@ -194,8 +195,8 @@ const applyFilters = (data, from, to, mustMatch, endpointType, eventType, sort =
                 }
                 resolve();
               }).catch(err => {
-                console.log('Item failed when filtering mustMatch\n' + err.message);
-                console.log(item);
+                logger.error('Item failed when filtering mustMatch:', err.message);
+                logger.error('Item:', item);
                 resolve();
               });
             } else {

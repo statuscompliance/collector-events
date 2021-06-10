@@ -2,6 +2,7 @@
 
 const fetcherUtils = require('./fetcherUtils');
 const redisManager = require('./redisManager');
+const logger = require('governify-commons').getLogger().tag('fetcher-githubGQL');
 
 const apiUrl = 'https://api.github.com';
 // const eventType = 'githubGQL';
@@ -23,7 +24,7 @@ const getInfo = (options) => {
           try {
             cached = await redisManager.getCache(options.from + options.to + step.query);
           } catch (err) {
-            console.log(err);
+            logger.error(err);
             cached = null;
           }
           if (step.cache && cached !== null) {
@@ -78,7 +79,7 @@ const getDataPaginated = (query, token) => {
     fetcherUtils.requestWithHeaders(apiUrl + '/graphql', requestConfig, { query: query }).then((data) => {
       resolve(data);
     }).catch(err => {
-      console.log(err);
+      logger.error(err);
       resolve(new Error('Failed when fetching to github.'));
     });
   });
@@ -117,7 +118,7 @@ const getMatches = (objects, filters) => {
     }
     return matches;
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return [];
   }
 };
@@ -137,7 +138,7 @@ const getSubObject = (object, location) => {
       return object[location];
     }
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return undefined;
   }
 };

@@ -1,6 +1,7 @@
 'use strict';
 
 const fetcherUtils = require('./fetcherUtils');
+const logger = require('governify-commons').getLogger().tag('fetcher-codeclimate');
 
 const apiUrl = 'https://api.codeclimate.com/v1';
 const eventType = 'codeclimate';
@@ -23,7 +24,7 @@ const getInfo = (options) => {
           reject(err);
         });
       }).catch(err => {
-        console.log('Failed when obtaining information for repo ' + options.githubSlug);
+        logger.error('Failed when obtaining information for repo ' + options.githubSlug);
         reject(err);
       });
     }).catch((err) => {
@@ -75,7 +76,7 @@ const getDataPaginated = (url, token, to, first = true) => {
       } else {
         fetcherUtils.requestWithHeaders(requestUrl, { Authorization: token }).then((data) => {
           if (data.errors) {
-            console.log(data);
+            logger.error(data);
             reject(Error('Error when obtaining CC information. Url: ' + requestUrl));
           } else if (data.links.next) {
             cacheData(data, requestUrl, to);

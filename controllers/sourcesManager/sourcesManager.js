@@ -3,6 +3,7 @@
 const fs = require('fs');
 
 const configJSON = JSON.parse(fs.readFileSync('./configurations/sourcesManager.json'));
+const logger = require('governify-commons').getLogger().tag('sources-manager');
 
 exports.getEndpoint = (eventType, endpointType, integrations) => {
   try {
@@ -21,7 +22,7 @@ exports.getEndpoint = (eventType, endpointType, integrations) => {
 
     return endpoint;
   } catch (err) {
-    console.log('error - sourcesManager.getEndpoint:\n' + err);
+    logger.error('sourcesManager.getEndpoint:\n' + err);
     return undefined;
   }
 };
@@ -74,7 +75,7 @@ exports.getMustMatch = (json, integrations, member) => {
 
     return mustMatch;
   } catch (err) {
-    console.log('error - sourcesManager.getMustMatch:\n' + err);
+    logger.error('sourcesManager.getMustMatch:\n' + err);
     return undefined;
   }
 };
@@ -82,7 +83,6 @@ exports.getMustMatch = (json, integrations, member) => {
 exports.getEventDate = (eventType, endpointType, event) => {
   try {
     if (endpointType === 'custom') {
-      console.log('custom!');
       return undefined;
     } else {
       const payloadDatesJSON = { ...configJSON.endpoints };
@@ -101,7 +101,7 @@ exports.getEventDate = (eventType, endpointType, event) => {
       return eventDate;
     }
   } catch (err) {
-    console.log('error - sourcesManager.getEventDate:\n' + err);
+    logger.error('sourcesManager.getEventDate:\n' + err);
     return undefined;
   }
 };
