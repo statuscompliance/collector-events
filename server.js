@@ -15,7 +15,7 @@ const deploy = (env, commonsMiddleware) => {
       app.use(bodyParser.json({
         strict: false
       }));
-      app.use('/commons', commonsMiddleware);
+      app.use(commonsMiddleware);
       var oasTools = require('oas-tools');
       var jsyaml = require('js-yaml');
       var serverPort = process.env.PORT || 5500;
