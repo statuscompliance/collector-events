@@ -46,14 +46,14 @@ external:
   registry:
     default: 'standard'
     standard: 'http://localhost:5400'
-  collector:
-    default: 'events'
-    events: 'http://localhost:5500'
-    dynamic: 'http://localhost:5501'
-    ppinot: 'http://localhost:5502'
-    pivotal: 'http://localhost:5503'
-    github: 'http://localhost:5504'
-    osseco: 'http://localhost:5505'
+#  collector:
+#    default: 'events'
+#    events: 'http://localhost:5500'
+#    dynamic: 'http://localhost:5501'
+#    ppinot: 'http://localhost:5502'
+#    pivotal: 'http://localhost:5503'
+#    github: 'http://localhost:5504'
+#    osseco: 'http://localhost:5505'
   dashboard:
     default: 'grafana'
     grafana: 'http://localhost:5600'
