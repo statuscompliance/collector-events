@@ -1,3 +1,11 @@
+## [1.8.2](https://github.com/governify/collector-events/compare/v1.8.1...v1.8.2) (2021-07-19)
+
+
+
+## [1.8.1](https://github.com/governify/collector-events/compare/v1.8.0...v1.8.1) (2021-07-19)
+
+
+
 # [1.8.0](https://github.com/governify/collector-events/compare/v1.7.0...v1.8.0) (2021-05-07)
 
 
