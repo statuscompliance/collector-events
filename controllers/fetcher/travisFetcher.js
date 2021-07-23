@@ -1,6 +1,7 @@
 'use strict';
 
 const fetcherUtils = require('./fetcherUtils');
+const logger = require('governify-commons').getLogger().tag('fetcher-travis');
 
 const publicApiUrl = 'https://api.travis-ci.org';
 const privateApiUrl = 'https://api.travis-ci.com';
@@ -60,7 +61,7 @@ const getDataPaginated = (url, token, to, offset = 0) => {
     } else {
       fetcherUtils.requestWithHeaders(requestUrl, { Authorization: token, 'Travis-API-Version': 3 }).then((data) => {
         if (data['@type'] === 'error') {
-          console.log('Problem when requesting PT payload:\n', data);
+          logger.error('Problem when requesting PT payload:\n', data);
 
           if (data.error_type === 'not_found') {
             reject(Error('Non existent or unauthorized access to Travis repo. URL: ' + requestUrl));

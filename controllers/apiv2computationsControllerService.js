@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const governify = require('governify-commons');
+const logger = governify.getLogger().tag('computations-controller');
 const fs = require('fs');
 const mustache = require('mustache');
 mustache.escape = function (text) { return text; };
@@ -16,7 +17,7 @@ let authKeys = {};
 try {
   authKeys = JSON.parse(mustache.render(fs.readFileSync('./configurations/authKeys.json', 'utf-8'), process.env, {}, ['$_[', ']']));
 } catch (err) {
-  console.log('No configurations/scopeManager/authKeys.json found!');
+  governify.getLogger().tag('startup').info('No configurations/scopeManager/authKeys.json found! Using default values.');
   // Minimal authKeys
   authKeys = {
     github: '',
@@ -51,11 +52,11 @@ module.exports.addComputation = function addComputation (req, res, next) {
           calculateComputations(dsl, periods, integrations, { ...authKeys }, members).then((computations) => {
             results[computationId] = computations;
           }).catch(err => {
-            console.log('error - addComputation.calculateComputations:\n' + err);
+            logger.error('addComputation.calculateComputations:\n' + err);
             results[computationId] = err.message;
           });
         }).catch(err => {
-          console.log('error - addComputation.getScopeInfo:\n' + err);
+          logger.error('addComputation.getScopeInfo:\n' + err);
           results[computationId] = err.message;
         });
 
@@ -67,15 +68,15 @@ module.exports.addComputation = function addComputation (req, res, next) {
           computation: '/api/v2/computations/' + computationId
         });
       }).catch(err => {
-        console.log('error - addComputation.getPeriods:\n' + err);
+        logger.error('addComputation.getPeriods:\n' + err);
         sendError(res, err, 400);
       });
     }).catch(err => {
-      console.log('error - addComputation.validateInput:\n' + err);
+      logger.error('addComputation.validateInput:\n' + err);
       sendError(res, err, 400);
     });
   } catch (err) {
-    console.log('error - addComputation:\n' + err);
+    logger.error('addComputation:\n' + err);
     sendError(res, err, 500);
   }
 };
@@ -170,7 +171,7 @@ const getPeriods = (dsl) => {
       // Apply traceback if needed
       if (dsl.metric.element.value !== undefined && dsl.metric.element.value.traceback) {
         if (dsl.metric.element.value.return !== 'newest') {
-          console.log('Traceback should be used with newest as return value!');
+          logger.warn('Traceback should be used with newest as return value!');
         }
         for (const period of periods) {
           period.from = '2016-01-01T00:00:00Z';
@@ -206,9 +207,9 @@ const getScopeInfo = (url, scope) => {
           } else {
             reject(new Error('Error: No scope was given.'));
           }
-          console.log('Error: Scope Manager 404 Response:', err.response.data.message);
+          logger.error('Scope Manager 404 Response:', err.response.data.message);
         } else {
-          console.log('err:', err);
+          logger.error('Scope Manager Response:', err);
           reject(new Error('Failed when requesting to ScopeManager'));
         }
       });
@@ -218,7 +219,7 @@ const getScopeInfo = (url, scope) => {
       } else {
         reject(new Error('Error: No scope was given.'));
       }
-      console.log(err);
+      logger.error(err);
     }
   });
 };

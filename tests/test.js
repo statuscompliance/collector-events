@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const sinon = require('sinon');
 const governify = require('governify-commons')
-
 const server = require('../server');
 const nockController = require('./nockController');
 
@@ -16,9 +15,10 @@ const keep = []
 describe('Array', function () {
   before((done) => {
     governify.init().then((commonsMiddleware) => {
+      governify.httpClient.setRequestLogging(false);
       server.deploy('test', commonsMiddleware).then(() => {
         nockController.instantiateMockups('test').then(() => {
-          sinon.stub(console, "log");
+          sinon.stub(console);
           done();
         }).catch(err2 => {
           console.log(err2.message);

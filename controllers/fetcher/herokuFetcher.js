@@ -1,6 +1,7 @@
 'use strict';
 
 const fetcherUtils = require('./fetcherUtils');
+const logger = require('governify-commons').getLogger().tag('fetcher-heroku');
 
 const apiUrl = 'https://api.heroku.com';
 const eventType = 'heroku';
@@ -56,7 +57,7 @@ const getDataPaginated = (url, token, to) => { // TODO - Paginate heroku data
           cacheDateUrl[url] = new Date().toISOString();
           resolve(data);
         } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
-          console.log('Problem when requesting Heroku payload:\n', data);
+          logger.error('Problem when requesting Heroku payload:\n', data);
 
           if (data.id === 'not_found') {
             reject(new Error('Heroku app not found. URL: ' + url));

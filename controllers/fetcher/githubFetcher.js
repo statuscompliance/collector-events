@@ -1,6 +1,7 @@
 'use strict';
 
 const fetcherUtils = require('./fetcherUtils');
+const logger = require('governify-commons').getLogger().tag('fetcher-github');
 
 const apiUrl = 'https://api.github.com';
 const eventType = 'github';
@@ -100,7 +101,7 @@ const getDataPaginated = (url, token, to, page = 1) => {
             resolve(data.concat(recData));
           }).catch((err) => { reject(err); });
         } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
-          console.log('Problem when requesting GH payload:\n', data);
+          logger.error('Problem when requesting GH payload:\n', data);
 
           if (data.message === 'Not Found') {
             reject(new Error('GitHub project not found or unauthorized. URL: ' + requestUrl));
@@ -145,7 +146,7 @@ const getSecondMustMatch = (mustMatch) => {
     }
     return copy;
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return {};
   }
 };
