@@ -1,3 +1,23 @@
+# [1.9.0](https://github.com/governify/collector-events/compare/v1.8.2...v1.9.0) (2021-07-23)
+
+
+### Bug Fixes
+
+* commons middleware ([0eb49d6](https://github.com/governify/collector-events/commit/0eb49d6b89e164c95614afd376259c66e97797f8))
+* package.json name ([f98c70d](https://github.com/governify/collector-events/commit/f98c70d21d356ca3cb022a7079b82171f0238d2c))
+* rm collectors from external infrastructure ([f3b9c36](https://github.com/governify/collector-events/commit/f3b9c36cc0a35086a84a222ca45a8e0636591606))
+* stub console ([d1fcd72](https://github.com/governify/collector-events/commit/d1fcd72e1c3212399d18ecb049d1b00d61f709df))
+
+
+### Features
+
+* commons logger ([66c19a6](https://github.com/governify/collector-events/commit/66c19a6c3e7379b127a5b97f22e56703ac3a1424))
+* E2E assets to develop ([ab7f187](https://github.com/governify/collector-events/commit/ab7f18726fd7f371960f2bfaee1f6c6b03780ad0))
+* runScript pipe ([abc2e97](https://github.com/governify/collector-events/commit/abc2e97d9a81f497f4d3b8a00b9c6fe8ac38a753))
+* update commons v1.14 ([f77c872](https://github.com/governify/collector-events/commit/f77c8724384164ad8d4fa7921bef857ac11a34a9))
+
+
+
 ## [1.8.2](https://github.com/governify/collector-events/compare/v1.8.1...v1.8.2) (2021-07-19)
 
 
