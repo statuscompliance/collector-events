@@ -2,6 +2,7 @@
 
 const logger = require('governify-commons').getLogger().tag('fetcher');
 const githubFetcher = require('./githubFetcher');
+const gitlabFetcher = require('./gitlabFetcher');
 const githubGQLFetcher = require('./githubGQLFetcher');
 const ghwrapperFetcher = require('./ghwrapperFetcher');
 const pivotalFetcher = require('./pivotalFetcher');
@@ -20,7 +21,6 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
 
       const mainEvents = {};
       const mainEventType = Object.keys(dsl.event)[0];
-
       // First we obtain The main events
       getEventsFromJson(dsl.event, from, to, { ...integrations }, authKeys, member).then((events) => {
         mainEvents[mainEventType] = events;
@@ -309,6 +309,23 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                     mustMatch: mustMatch
                   })
                   .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'gitlab':
+                gitlabFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.gitlab.apiKey, authKeys.gitlab, ''),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
+                  })
+                  .then((data) => {
+
                     resolve(data);
                   }).catch(err => {
                     reject(err);

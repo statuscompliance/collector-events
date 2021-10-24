@@ -100,7 +100,6 @@ const filterMustMatch = (item, mustMatch) => {
       for (let i = 0; i < rootKeys.length; i++) {
         const actual = item[rootKeys[i]];
         const mustMatchActual = mustMatch[rootKeys[i]];
-
         if (actual === undefined) {
           if (JSON.stringify(mustMatchActual).includes('%SECOND%')) {
             // Ignore

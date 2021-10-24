@@ -17,6 +17,7 @@ exports.getEndpoint = (eventType, endpointType, integrations) => {
     // Substituting endpoint parameters with integrations object
     for (const integration of endpointIntegrations) {
       const integrationSplit = integration.replace('{', '').replace('}', '').split('.');
+      if(Object.keys(integrations).includes('gitlab') && integrationSplit[0] === 'github') integrationSplit[0] = 'gitlab'
       endpoint = endpoint.replace(integration, integrations[integrationSplit[0]][integrationSplit[1]]);
     }
 
@@ -31,15 +32,17 @@ exports.getMustMatch = (json, integrations, member) => {
   try {
     const substitutionsList = [...configJSON.substitutions];
     let mustMatch = { ...json };
-
+    
     // Integrations substitutions
     for (const substitution of substitutionsList) {
       const substitutionSplit = substitution.split('->');
       const integrationSplit = substitutionSplit[1].split('.');
-      mustMatch = JSON.parse(JSON.stringify(mustMatch).replace(
-        '%' + substitutionSplit[0] + '%',
-        integrations[integrationSplit[0]][integrationSplit[1]]
-      ));
+      if(JSON.stringify(mustMatch).includes(substitutionSplit[0])){
+        mustMatch = JSON.parse(JSON.stringify(mustMatch).replace(
+          '%' + substitutionSplit[0] + '%',
+          integrations[integrationSplit[0]][integrationSplit[1]]
+        ));
+      }
     }
 
     // Member substitutions
