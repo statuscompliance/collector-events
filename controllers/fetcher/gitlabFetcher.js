@@ -9,7 +9,7 @@ let cacheDate;
 
 const getInfo = (options) => {
   return new Promise((resolve, reject) => {
-    getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {   
+    getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {
       fetcherUtils.applyFilters(
         data,
         options.from,
@@ -71,7 +71,7 @@ const getInfo = (options) => {
       reject(err);
     });
   });
-}
+};
 
 const getDataPaginated = (url, token, to, page = 1) => {
   return new Promise((resolve, reject) => {
@@ -89,7 +89,7 @@ const getDataPaginated = (url, token, to, page = 1) => {
         resolve([]);
       }
     } else {
-      const requestConfig = token ? { "PRIVATE-TOKEN": token } : {};
+      const requestConfig = token ? { 'PRIVATE-TOKEN': token } : {};
       fetcherUtils.requestWithHeaders(requestUrl, requestConfig).then((data) => {
         if (data.length && data.length !== 0) {
           cacheData(data, requestUrl, to);
@@ -118,6 +118,32 @@ const cacheData = (data, requestUrl, to) => {
     requestCache = {};
     requestCache[requestUrl] = data;
     cacheDate = new Date().toISOString();
+  }
+};
+
+const getSecondMustMatch = (mustMatch) => {
+  try {
+    const copy = { ...mustMatch };
+    for (const key of Object.keys(mustMatch)) {
+      if (typeof copy[key] === typeof {}) {
+        copy[key] = getSecondMustMatch(copy[key]);
+        if (Object.keys(copy[key]).length === 0) {
+          delete copy[key];
+        }
+      } else if (typeof copy[key] === typeof '') {
+        if (copy[key].includes('%SECOND%')) {
+          copy[key] = copy[key].split('%SECOND%')[1];
+        } else {
+          delete copy[key];
+        }
+      } else {
+        delete copy[key];
+      }
+    }
+    return copy;
+  } catch (err) {
+    logger.error(err);
+    return {};
   }
 };
 

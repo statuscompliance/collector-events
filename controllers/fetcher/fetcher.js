@@ -325,7 +325,6 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                     mustMatch: mustMatch
                   })
                   .then((data) => {
-
                     resolve(data);
                   }).catch(err => {
                     reject(err);
