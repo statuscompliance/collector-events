@@ -1,3 +1,12 @@
+# [1.10.0](https://github.com/governify/collector-events/compare/v1.9.0...v1.10.0) (2021-10-28)
+
+
+### Features
+
+* gitlab ([821350a](https://github.com/governify/collector-events/commit/821350ae18304afd9b4a5c2c69de2db7a146b42a))
+
+
+
 # [1.9.0](https://github.com/governify/collector-events/compare/v1.8.2...v1.9.0) (2021-07-23)
 
 
