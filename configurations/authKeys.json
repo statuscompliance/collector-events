@@ -6,5 +6,6 @@
     "travis_public": "$_[KEY_TRAVIS_PUBLIC]",
     "travis_private": "$_[KEY_TRAVIS_PRIVATE]",
     "codeclimate": "$_[KEY_CODECLIMATE]",
-    "pseudonymizer": "$_[KEY_PSEUDONYMIZER]"
+    "pseudonymizer": "$_[KEY_PSEUDONYMIZER]",
+    "gitlab":"$_[KEY_GITLAB]"
 }
