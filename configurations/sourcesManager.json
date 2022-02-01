@@ -22,6 +22,12 @@
                 "payloadDate": "closed_at"
             }
         },
+        "githubCI": {
+            "builds": {
+                "endpoint": "/repos/{github.repoOwner}/{github.repository}/actions/runs",
+                "payloadDate": "created_at"
+            }
+        },
         "gitlab": {
             "events": { 
                 "endpoint": "/projects/{gitlab.repoId}/events", 
