@@ -2,6 +2,7 @@
 
 const logger = require('governify-commons').getLogger().tag('fetcher');
 const githubFetcher = require('./githubFetcher');
+const githubCIFetcher = require('./githubCIFetcher');
 const gitlabFetcher = require('./gitlabFetcher');
 const githubGQLFetcher = require('./githubGQLFetcher');
 const ghwrapperFetcher = require('./ghwrapperFetcher');
@@ -300,6 +301,22 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                 break;
               case 'github':
                 githubFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.github.apiKey, authKeys.github, 'token '),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'githubCI':
+                githubCIFetcher
                   .getInfo({
                     from: from,
                     to: to,
