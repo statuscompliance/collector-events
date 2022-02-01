@@ -316,21 +316,21 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                   });
                 break;
               case 'githubCI':
-                  githubCIFetcher
-                    .getInfo({
-                      from: from,
-                      to: to,
-                      token: generateToken(integrations.github.apiKey, authKeys.github, 'token '),
-                      endpoint: endpoint,
-                      endpointType: endpointType,
-                      mustMatch: mustMatch
-                    })
-                    .then((data) => {
-                      resolve(data);
-                    }).catch(err => {
-                      reject(err);
-                    });
-                  break;
+                githubCIFetcher
+                  .getInfo({
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.github.apiKey, authKeys.github, 'token '),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
               case 'gitlab':
                 gitlabFetcher
                   .getInfo({

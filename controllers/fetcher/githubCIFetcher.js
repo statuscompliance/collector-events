@@ -49,7 +49,7 @@ const getDataPaginated = (url, token, to, page = 1) => {
     } else {
       const requestConfig = token ? { Authorization: token } : {};
       fetcherUtils.requestWithHeaders(requestUrl, requestConfig).then((response) => {
-        let data = response["workflow_runs"];
+        const data = response.workflow_runs;
         if (data.length && data.length !== 0) {
           cacheData(data, requestUrl, to);
           getDataPaginated(url, token, to, page + 1).then(recData => {
@@ -77,32 +77,6 @@ const cacheData = (data, requestUrl, to) => {
     requestCache = {};
     requestCache[requestUrl] = data;
     cacheDate = new Date().toISOString();
-  }
-};
-
-const getSecondMustMatch = (mustMatch) => {
-  try {
-    const copy = { ...mustMatch };
-    for (const key of Object.keys(mustMatch)) {
-      if (typeof copy[key] === typeof {}) {
-        copy[key] = getSecondMustMatch(copy[key]);
-        if (Object.keys(copy[key]).length === 0) {
-          delete copy[key];
-        }
-      } else if (typeof copy[key] === typeof '') {
-        if (copy[key].includes('%SECOND%')) {
-          copy[key] = copy[key].split('%SECOND%')[1];
-        } else {
-          delete copy[key];
-        }
-      } else {
-        delete copy[key];
-      }
-    }
-    return copy;
-  } catch (err) {
-    logger.error(err);
-    return {};
   }
 };
 
