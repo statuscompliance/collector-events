@@ -83,6 +83,12 @@
                 "endpoint": "/repos/[ccRepositoryId]/test_reports",
                 "payloadDate": "attributes.committed_at"
             }
+        },
+        "redmine": {
+            "issues": {
+                "endpoint": "/issues.json", 
+                "payloadDate": "created_on"
+            }
         }
     },
     "substitutions": [
