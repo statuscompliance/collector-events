@@ -1,4 +1,4 @@
-Ejemplo con redmine:
+Example with redmine:
 
 	1. Add key in ./configurations/authKeys.json:  "redmine":"$_[KEY_REDMINE]"
 	2. Add desired endpoints in ./configurations/sourcesManager.json:
