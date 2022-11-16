@@ -242,7 +242,6 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
               for (let filter of steps[stepKey].filters.filter(filterElement => memberRegex.test(filterElement))) {
                 // For each regex match in the filter
                 for (const regexMatch of filter.match(memberRegex)) {
-
                   const splitted = regexMatch.replace(/%/g, '').replace('MEMBER.', '').split('.');
                   const identity = member.identities.filter(e => e.source === splitted[0])[0];
                   if (identity) {
@@ -425,7 +424,7 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                     token: generateToken(integrations.redmine.apiKey, authKeys.redmine, ''),
                     endpoint: endpoint,
                     endpointType: endpointType,
-                    mustMatch: mustMatch,
+                    mustMatch: mustMatch
                   })
                   .then((data) => {
                     resolve(data);
@@ -452,7 +451,6 @@ const generateToken = (primary, secondary, prefix) => {
     } else if (secondary) {
       result = prefix + secondary;
     }
-
 
     return result;
   } catch (err) {

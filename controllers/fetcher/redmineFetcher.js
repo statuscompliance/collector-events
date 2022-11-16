@@ -6,8 +6,7 @@ const logger = require('governify-commons').getLogger().tag('fetcher-redmine');
 const apiUrl = 'http://localhost:81/redmine';
 const eventType = 'redmine';
 
-let requestCache = {};
-let cacheDate;
+const requestCache = {};
 
 // Function who controls the script flow
 const getInfo = (options) => {
@@ -22,18 +21,17 @@ const getInfo = (options) => {
         eventType
       ).then((filteredData) => {
         if (options.endpointType === 'issuesMovedToInProgress') {
-          
-          let result = []
-          let promises = []
-          
+          const result = [];
+          const promises = [];
+
           for (const issue of filteredData) {
             const promise = new Promise((resolve, reject) => {
               try {
-                fetcherUtils.requestWithHeaders(apiUrl + "/issues/" + issue.id + ".json?include=journals", { 'X-Redmine-API-Key': options.token }).then(data => {
-                  data = Object.values(data)[0]
+                fetcherUtils.requestWithHeaders(apiUrl + '/issues/' + issue.id + '.json?include=journals', { 'X-Redmine-API-Key': options.token }).then(data => {
+                  data = Object.values(data)[0];
                   for (const journal of data.journals) {
                     for (const detail of journal.details) {
-                      if (detail.name == "status_id" && detail.new_value == "2") {
+                      if (detail.name === 'status_id' && detail.new_value === '2') {
                         result.push(data);
                       }
                     }
@@ -55,7 +53,6 @@ const getInfo = (options) => {
           }).catch(err => {
             reject(err);
           });
-
         } else {
           resolve(filteredData);
         }
@@ -69,7 +66,6 @@ const getInfo = (options) => {
 };
 
 const getDataPaginated = (url, token, offset = 0) => {
-
   return new Promise((resolve, reject) => {
     let requestUrl = url;
     requestUrl += '?limit=100&offset=' + offset;
@@ -84,7 +80,7 @@ const getDataPaginated = (url, token, offset = 0) => {
       } else { resolve([]); }
     } else {
       fetcherUtils.requestWithHeaders(requestUrl, { 'X-Redmine-API-Key': token }).then((response) => {
-        let data = Object.values(response)[0]
+        const data = Object.values(response)[0];
         if (data.length && data.length !== 0) {
           requestCache[requestUrl] = data;
           getDataPaginated(url, token, offset + data.length).then(recData => {
@@ -92,7 +88,6 @@ const getDataPaginated = (url, token, offset = 0) => {
           }).catch((err) => { reject(err); });
         } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
           logger.error('Problem when requesting Redmine payload:\n', data);
-
 
           if (data.kind === 'error') {
             if (data.error.includes('The object you tried to access could not be found.')) {
