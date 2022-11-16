@@ -29,10 +29,10 @@ jobs:
         redis-version: ${{ matrix.redis-version }}
     - name: Install dependencies 
       run: npm ci
-    - name: Check syntax
-      run: npm run lint
-      env:
-        CI: true
+#    - name: Check syntax
+#      run: npm run lint
+#      env:
+#        CI: true
     - name: Run tests
       run: npm run test
       env:
