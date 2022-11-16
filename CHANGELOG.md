@@ -1,3 +1,12 @@
+# [1.11.0](https://github.com/governify/collector-events/compare/v1.10.0...v1.11.0) (2022-02-01)
+
+
+### Features
+
+* GithubCI fetcher ([1d12616](https://github.com/governify/collector-events/commit/1d126164ae997ef8697c5eb6de86c4818fcdf385))
+
+
+
 # [1.10.0](https://github.com/governify/collector-events/compare/v1.9.0...v1.10.0) (2021-10-28)
 
 

@@ -9,7 +9,7 @@ let cacheDate;
 
 const getInfo = (options) => {
   return new Promise((resolve, reject) => {
-    getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {
+    getDataPaginated((options.gitlabApiBaseUrl || apiUrl) + options.endpoint, options.token, options.to).then((data) => {
       fetcherUtils.applyFilters(
         data,
         options.from,
@@ -63,6 +63,7 @@ const getInfo = (options) => {
           }).catch(err => {
             reject(err);
           });
+          
         } else {
           resolve(filteredData);
         }
