@@ -9,7 +9,7 @@ exports.getEndpoint = (eventType, endpointType, integrations) => {
   try {
     const endpointsJSON = { ...configJSON.endpoints };
     let endpoint = endpointsJSON[eventType][endpointType].endpoint;
-
+    
     // Obtains all {ANY} strings
     const re = /\{([A-z]|\.)+\}/g;
     const endpointIntegrations = endpoint.match(re) ? endpoint.match(re) : [];
@@ -17,6 +17,7 @@ exports.getEndpoint = (eventType, endpointType, integrations) => {
     // Substituting endpoint parameters with integrations object
     for (const integration of endpointIntegrations) {
       const integrationSplit = integration.replace('{', '').replace('}', '').split('.');
+
       if (Object.keys(integrations).includes('gitlab') && integrationSplit[0] === 'github') integrationSplit[0] = 'gitlab';
       endpoint = endpoint.replace(integration, integrations[integrationSplit[0]][integrationSplit[1]]);
     }
