@@ -6,6 +6,7 @@ const logger = governify.getLogger().tag('computations-controller');
 const fs = require('fs');
 const mustache = require('mustache');
 mustache.escape = function (text) { return text; };
+const rrulestr = require('rrule').rrulestr;
 
 const fetcher = require('./fetcher/fetcher');
 
@@ -25,7 +26,9 @@ try {
     heroku: '',
     travis: '',
     codeclimate: '',
-    scopeManager: ''
+    scopeManager: '',
+    gitlab: '',
+    redmine: ''
   };
 }
 
@@ -121,43 +124,68 @@ const getPeriods = (dsl) => {
       const initial = dsl.metric.window.initial;
       const end = dsl.metric.window.end;
       const windowPeriod = dsl.metric.window.period;
-
-      // Translate period string to actual days and obtain number of periods
-      const periodLengths = {
-        daily: 1,
-        weekly: 7,
-        biweekly: 14,
-        monthly: 30,
-        bimonthly: 60,
-        annually: 365
-      };
-      const periodLength = periodLengths[windowPeriod];
-      if (periodLength === undefined) { reject(new Error('metric.window.period must be within these: daily, weekly, biweekly, monthly, bimonthly, annually.')); }
-
-      // Obtain periods
       const periods = [];
 
-      let fromStr = initial;
-      let toDate;
-      let toStr;
+      if (windowPeriod === 'customRuleDaily') {
+        const ruleStr = dsl.metric.window.rule;
+        const rule = rrulestr(ruleStr);
 
-      let keepGoing = true;
-      while (keepGoing) {
-        // Set from after each iteration
-        if (toStr !== undefined) {
-          fromStr = toStr;
+        for (const day of rule.all()) {
+          if (day > new Date()) {
+            break;
+          }
+
+          const dayFrom = new Date(day);
+          dayFrom.setUTCHours(0);
+          dayFrom.setUTCMinutes(0);
+          dayFrom.setUTCSeconds(0);
+
+          const dayTo = new Date(day);
+          dayTo.setUTCHours(23);
+          dayTo.setUTCMinutes(59);
+          dayTo.setUTCSeconds(59);
+
+          const fromStr = dayFrom.toISOString();
+          const toStr = dayTo.toISOString();
+
+          periods.push({ from: fromStr, to: toStr, originalFrom: fromStr, originalTo: toStr });
         }
+      } else {
+        // Translate period string to actual days and obtain number of periods
+        const periodLengths = {
+          daily: 1,
+          weekly: 7,
+          biweekly: 14,
+          monthly: 30,
+          bimonthly: 60,
+          annually: 365
+        };
+        const periodLength = periodLengths[windowPeriod];
+        if (periodLength === undefined) { reject(new Error('metric.window.period must be within these: daily, weekly, biweekly, monthly, bimonthly, annually.')); }
 
-        // Check if to is after end of periods
-        toDate = new Date(Date.parse(fromStr) + periodLength * 24 * 60 * 60 * 1000);
-        if (toDate >= new Date(Date.parse(end))) {
-          toDate = new Date(Date.parse(end));
-          keepGoing = false;
+        // Obtain periods
+        let fromStr = initial;
+        let toDate;
+        let toStr;
+
+        let keepGoing = true;
+        while (keepGoing) {
+          // Set from after each iteration
+          if (toStr !== undefined) {
+            fromStr = toStr;
+          }
+
+          // Check if to is after end of periods
+          toDate = new Date(Date.parse(fromStr) + periodLength * 24 * 60 * 60 * 1000);
+          if (toDate >= new Date(Date.parse(end))) {
+            toDate = new Date(Date.parse(end));
+            keepGoing = false;
+          }
+          toStr = toDate.toISOString();
+
+          // Push into the array
+          periods.push({ from: fromStr, to: toStr, originalFrom: fromStr, originalTo: toStr });
         }
-        toStr = toDate.toISOString();
-
-        // Push into the array
-        periods.push({ from: fromStr, to: toStr, originalFrom: fromStr, originalTo: toStr });
       }
 
       // Apply offset if needed
@@ -240,6 +268,8 @@ const generateIntegrationsFromScopeInfo = (scope) => {
     }
   }
 
+  // console.log("INTEGRATIONS: ", integrations)
+
   return integrations;
 };
 
@@ -259,6 +289,7 @@ const calculateComputations = (dsl, periods, integrations, authKeys, members) =>
                   // Push computation
                   const resultScope = { ...metric.scope };
                   resultScope.member = member.memberId;
+
                   computations.push({
                     scope: resultScope,
                     period: {

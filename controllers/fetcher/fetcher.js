@@ -9,6 +9,7 @@ const ghwrapperFetcher = require('./ghwrapperFetcher');
 const pivotalFetcher = require('./pivotalFetcher');
 const herokuFetcher = require('./herokuFetcher');
 const travisFetcher = require('./travisFetcher');
+const redmineFetcher = require('./redmineFetcher');
 const codeclimateFetcher = require('./codeclimateFetcher');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
@@ -26,6 +27,7 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
       getEventsFromJson(dsl.event, from, to, { ...integrations }, authKeys, member).then((events) => {
         mainEvents[mainEventType] = events;
         evidences = events;
+
         // We call getMetric to obtain the metric and evidences depending on the type
         getMetricAndEvidences(dsl, from, to, { ...integrations }, { ...mainEvents }, mainEventType, [...evidences], metricType, authKeys, member, dsl.event).then(result => {
           resolve(result);
@@ -334,6 +336,7 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
               case 'gitlab':
                 gitlabFetcher
                   .getInfo({
+                    gitlabApiBaseUrl: integrations.gitlab.gitlabApiBaseUrl,
                     from: from,
                     to: to,
                     token: generateToken(integrations.gitlab.apiKey, authKeys.gitlab, ''),
@@ -405,6 +408,23 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                     endpointType: endpointType,
                     mustMatch: mustMatch,
                     githubSlug: integrations.github.repoOwner + '/' + integrations.github.repository
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'redmine':
+                redmineFetcher
+                  .getInfo({
+                    redmineApiBaseUrl: integrations.redmine.redmineApiBaseUrl,
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.redmine.apiKey, authKeys.redmine, ''),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
                   })
                   .then((data) => {
                     resolve(data);
@@ -494,6 +514,7 @@ const matchBinding = (mainEvent, secondaryEvent, relatedObject) => {
     const bindings = findBindingElement(relatedObject);
     // Now we identify each binding type and try to match
     let res = true;
+
     for (const binding of bindings) {
       const bindingType = binding.element.split('(')[0].split('#')[1];
       const bindingProperty = binding.element.split('(')[1].split(')')[0];
@@ -501,10 +522,12 @@ const matchBinding = (mainEvent, secondaryEvent, relatedObject) => {
       // We get the values
       // Iterative extraction of event date based on the endpoint payloadDate configuration
       let mainEventValue = { ...mainEvent };
+
       for (const splitItem of bindingProperty.split('.')) {
         mainEventValue = mainEventValue[splitItem];
       }
       let secondaryEventValue = { ...secondaryEvent };
+
       for (const splitItem of binding.location.split('.')) {
         secondaryEventValue = secondaryEventValue[splitItem];
       }

@@ -44,6 +44,26 @@
             "allMR": {
                 "endpoint": "/projects/{gitlab.repoId}/merge_requests",
                 "payloadDate": "created_at"
+            },
+            "newBranches": { 
+                "endpoint": "/projects/{gitlab.repoId}/events", 
+                "payloadDate": "created_at"
+            },
+            "updatedBranches": { 
+                "endpoint": "/projects/{gitlab.repoId}/repository/branches", 
+                "payloadDate": "commit.committed_date"
+            },
+            "closedBranches": { 
+                "endpoint": "/projects/{gitlab.repoId}/repository/branches", 
+                "payloadDate": "commit.committed_date"
+            },
+            "commits": { 
+                "endpoint": "/projects/{gitlab.repoId}/repository/commits", 
+                "payloadDate": "committed_date"
+            },
+            "releases": { 
+                "endpoint": "/projects/{gitlab.repoId}/releases", 
+                "payloadDate": "released_at"
             }
         },
         "ghwrapper": {
@@ -82,6 +102,24 @@
             "coverage": {
                 "endpoint": "/repos/[ccRepositoryId]/test_reports",
                 "payloadDate": "attributes.committed_at"
+            }
+        },
+        "redmine": {
+            "newIssues": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json", 
+                "payloadDate": "created_on"
+            },
+            "updatedIssues": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json", 
+                "payloadDate": "updated_on"
+            },
+            "closedIssues": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=closed", 
+                "payloadDate": "closed_on"
+            },
+            "issuesMovedToInProgress": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json", 
+                "payloadDate": "updated_on"
             }
         }
     },
