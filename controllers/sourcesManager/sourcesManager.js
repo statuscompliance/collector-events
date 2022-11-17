@@ -9,7 +9,7 @@ exports.getEndpoint = (eventType, endpointType, integrations) => {
   try {
     const endpointsJSON = { ...configJSON.endpoints };
     let endpoint = endpointsJSON[eventType][endpointType].endpoint;
-    
+
     // Obtains all {ANY} strings
     const re = /\{([A-z]|\.)+\}/g;
     const endpointIntegrations = endpoint.match(re) ? endpoint.match(re) : [];

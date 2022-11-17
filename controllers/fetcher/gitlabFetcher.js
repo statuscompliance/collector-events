@@ -63,7 +63,6 @@ const getInfo = (options) => {
           }).catch(err => {
             reject(err);
           });
-          
         } else {
           resolve(filteredData);
         }

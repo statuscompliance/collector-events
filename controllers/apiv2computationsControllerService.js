@@ -6,8 +6,7 @@ const logger = governify.getLogger().tag('computations-controller');
 const fs = require('fs');
 const mustache = require('mustache');
 mustache.escape = function (text) { return text; };
-const RRule = require('rrule').RRule
-const rrulestr = require('rrule').rrulestr
+const rrulestr = require('rrule').rrulestr;
 
 const fetcher = require('./fetcher/fetcher');
 
@@ -126,33 +125,31 @@ const getPeriods = (dsl) => {
       const end = dsl.metric.window.end;
       const windowPeriod = dsl.metric.window.period;
       const periods = [];
-      
-      if (windowPeriod === "customRuleDaily") {
+
+      if (windowPeriod === 'customRuleDaily') {
         const ruleStr = dsl.metric.window.rule;
-        let rule = rrulestr(ruleStr)
+        const rule = rrulestr(ruleStr);
 
         for (const day of rule.all()) {
-
           if (day > new Date()) {
             break;
           }
 
-          let dayFrom = new Date(day)
-          dayFrom.setUTCHours(0)
-          dayFrom.setUTCMinutes(0)
-          dayFrom.setUTCSeconds(0)
+          const dayFrom = new Date(day);
+          dayFrom.setUTCHours(0);
+          dayFrom.setUTCMinutes(0);
+          dayFrom.setUTCSeconds(0);
 
-          let dayTo = new Date(day)
-          dayTo.setUTCHours(23)
-          dayTo.setUTCMinutes(59)
-          dayTo.setUTCSeconds(59)
+          const dayTo = new Date(day);
+          dayTo.setUTCHours(23);
+          dayTo.setUTCMinutes(59);
+          dayTo.setUTCSeconds(59);
 
           const fromStr = dayFrom.toISOString();
           const toStr = dayTo.toISOString();
 
           periods.push({ from: fromStr, to: toStr, originalFrom: fromStr, originalTo: toStr });
         }
-
       } else {
         // Translate period string to actual days and obtain number of periods
         const periodLengths = {
@@ -165,8 +162,6 @@ const getPeriods = (dsl) => {
         };
         const periodLength = periodLengths[windowPeriod];
         if (periodLength === undefined) { reject(new Error('metric.window.period must be within these: daily, weekly, biweekly, monthly, bimonthly, annually.')); }
-      
-
 
         // Obtain periods
         let fromStr = initial;
@@ -326,7 +321,6 @@ const calculateComputations = (dsl, periods, integrations, authKeys, members) =>
                   evidences: result.evidences,
                   value: result.metric
                 });
-
               }
               resolve();
             }).catch(err => {
@@ -336,7 +330,7 @@ const calculateComputations = (dsl, periods, integrations, authKeys, members) =>
           promises.push(promise);
         }
       }
-      
+
       Promise.all(promises).then(() => {
         resolve(computations);
       }).catch(err => {
