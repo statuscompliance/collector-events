@@ -1,3 +1,13 @@
+# [1.12.0](https://github.com/governify/collector-events/compare/v1.11.0...v1.12.0) (2022-11-17)
+
+
+### Features
+
+* Added endpoints to the sourcesManager.json ([1045329](https://github.com/governify/collector-events/commit/1045329b47bca14ba8126f9e9892635134dd17f3))
+* Redmine and Gitlab fetchers working ([a01be9c](https://github.com/governify/collector-events/commit/a01be9c1e6882c54a0903771ad4dbe97904aa736))
+
+
+
 # [1.11.0](https://github.com/governify/collector-events/compare/v1.10.0...v1.11.0) (2022-02-01)
 
 
