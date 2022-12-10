@@ -8,5 +8,6 @@
     "codeclimate": "$_[KEY_CODECLIMATE]",
     "pseudonymizer": "$_[KEY_PSEUDONYMIZER]",
     "gitlab":"$_[KEY_GITLAB]",
-    "redmine":"$_[KEY_REDMINE]"    
+    "redmine":"$_[KEY_REDMINE]",
+    "jira":"$_[KEY_JIRA]"
 }
