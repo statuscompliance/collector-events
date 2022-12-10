@@ -49,11 +49,23 @@
                 "endpoint": "/projects/{gitlab.repoId}/events", 
                 "payloadDate": "created_at"
             },
+            "newBranchesAllRepos": { 
+                "endpoint": "/projects/{gitlab.repoId}/events", 
+                "payloadDate": "created_at"
+            },
             "updatedBranches": { 
                 "endpoint": "/projects/{gitlab.repoId}/repository/branches", 
                 "payloadDate": "commit.committed_date"
             },
+            "branchesUpdateRatioAllRepos": { 
+                "endpoint": "/projects/{gitlab.repoId}/repository/branches", 
+                "payloadDate": "commit.committed_date"
+            },
             "closedBranches": { 
+                "endpoint": "/projects/{gitlab.repoId}/repository/branches", 
+                "payloadDate": "commit.committed_date"
+            },
+            "closedBranchesAllRepos": { 
                 "endpoint": "/projects/{gitlab.repoId}/repository/branches", 
                 "payloadDate": "commit.committed_date"
             },
@@ -106,20 +118,50 @@
         },
         "redmine": {
             "newIssues": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=*", 
+                "payloadDate": "created_on"
+            },
+            "inProgressIssues30Days": {
                 "endpoint": "/projects/{redmine.projectId}/issues.json", 
                 "payloadDate": "created_on"
             },
             "updatedIssues": {
-                "endpoint": "/projects/{redmine.projectId}/issues.json", 
+                "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=*", 
+                "payloadDate": "updated_on"
+            },
+            "inProgressIssuesByMember": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=2", 
+                "payloadDate": "updated_on"
+            },
+            "issuesMovedToInProgress": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=*", 
+                "payloadDate": "updated_on"
+            },
+            "inProgressIssuesClosed": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=*", 
                 "payloadDate": "updated_on"
             },
             "closedIssues": {
                 "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=closed", 
                 "payloadDate": "closed_on"
             },
-            "issuesMovedToInProgress": {
-                "endpoint": "/projects/{redmine.projectId}/issues.json", 
-                "payloadDate": "updated_on"
+            "closedIssues30Days": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=closed", 
+                "payloadDate": "closed_on"
+            },
+            "closedIssuesOnePoint5Days": {
+                "endpoint": "/projects/{redmine.projectId}/issues.json?status_id=closed", 
+                "payloadDate": "closed_on"
+            }
+        },
+        "jira": {
+            "newIssues": {
+                "endpoint": "/search?jql=project={jira.projectId}",
+                "payloadDate": "fields.created"
+            },
+            "updatedIssues": {
+                "endpoint": "/search?jql=project={jira.projectId}",
+                "payloadDate": "fields.updated"
             }
         }
     },
