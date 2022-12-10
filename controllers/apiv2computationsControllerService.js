@@ -278,7 +278,7 @@ const calculateComputations = (dsl, periods, integrations, authKeys, members) =>
       const promises = [];
       const computations = [];
 
-      if (metric.scope.member === '*') { // Esto no está aquí, aunque haya members
+      if (metric.scope.member === '*') {
         for (const period of periods) {
           for (const member of members) {
             const promise = new Promise((resolve, reject) => {
