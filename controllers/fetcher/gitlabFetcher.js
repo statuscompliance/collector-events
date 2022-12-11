@@ -7,7 +7,60 @@ const eventType = 'gitlab';
 let requestCache = {};
 let cacheDate;
 
+const ALL_REPOS_ENDPOINT_TYPES = ['newBranchesAllRepos', 'closedBranchesAllRepos', 'branchesUpdateRatioAllRepos'];
+
 const getInfo = (options) => {
+  return new Promise((resolve, reject) => {
+    if (ALL_REPOS_ENDPOINT_TYPES.includes(options.endpointType)) {
+      const promises = [];
+      fetcherUtils.requestWithHeaders((options.gitlabApiBaseUrl || apiUrl) + '/projects', { 'PRIVATE-TOKEN': options.token }).then(data => {
+        for (const project of data) {
+          options.endpoint = options.endpoint.replace(/(\/projects\/[0-9]+\/)/, '/projects/' + project.id + '/');
+          promises.push(getProjectInfo(options));
+        }
+
+        Promise.all(promises).then((response) => {
+          if (options.endpointType === 'branchesUpdateRatioAllRepos') {
+            let numberUpdatedBranches = 0;
+            for (const value of response) {
+              if (value.length > 0) {
+                numberUpdatedBranches++;
+              }
+            }
+
+            resolve([{ updateRatio: numberUpdatedBranches / response.length }]);
+          } else if (options.endpointType === 'newBranchesAllRepos') {
+            const result = [];
+            for (const value of response) {
+              if (value.length > 0) {
+                result.push(value);
+              }
+            }
+
+            resolve(result.flat());
+          } else if (options.endpointType === 'closedBranchesAllRepos') {
+            const result = [];
+            for (const value of response) {
+              if (value.length > 0) {
+                result.push(value);
+              }
+            }
+
+            resolve(result.flat());
+          } else {
+            resolve(response);
+          }
+        }).catch(err => {
+          reject(err);
+        });
+      });
+    } else {
+      resolve(getProjectInfo(options));
+    }
+  });
+};
+
+const getProjectInfo = (options) => {
   return new Promise((resolve, reject) => {
     getDataPaginated((options.gitlabApiBaseUrl || apiUrl) + options.endpoint, options.token, options.to).then((data) => {
       fetcherUtils.applyFilters(
@@ -26,7 +79,7 @@ const getInfo = (options) => {
           for (const closedPR of filteredData) {
             const promise = new Promise((resolve, reject) => {
               try {
-                getDataPaginated(apiUrl + options.endpoint.split('?')[0] + '/' + closedPR.number + '/files', options.token, options.to).then(closedPRFiles => {
+                getDataPaginated((options.redmineApiBaseUrl || apiUrl) + options.endpoint.split('?')[0] + '/' + closedPR.number + '/files', options.token, options.to).then(closedPRFiles => {
                   closedPRFiles[0].closed_at = closedPR.closed_at; // Add the date for the matches
                   result.push(closedPRFiles[0]);
                   resolve();
@@ -66,7 +119,9 @@ const getInfo = (options) => {
         } else {
           resolve(filteredData);
         }
-      }).catch(err => reject(err));
+      }).catch(err => {
+        reject(err);
+      });
     }).catch(err => {
       reject(err);
     });

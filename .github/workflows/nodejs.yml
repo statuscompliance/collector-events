@@ -37,16 +37,16 @@ jobs:
       run: npm run test
       env:
         CI: true
-    - name: Generate coverage report
-      run: npm run coverage
-      env:
-        CI: true    
-    - name: Coverage to Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-      env:
-        CI: true
+    # - name: Generate coverage report
+    #   run: npm run coverage
+    #   env:
+    #     CI: true    
+    # - name: Coverage to Coveralls
+    #   uses: coverallsapp/github-action@master
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #   env:
+    #     CI: true
   e2eTest:
     name: (develop) E2E - Checkout infrastructure, install mocha and run tests (docker-compose up, mocha tests and docker-compose down)
     needs: buildTest

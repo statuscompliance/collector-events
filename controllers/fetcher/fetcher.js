@@ -10,6 +10,7 @@ const pivotalFetcher = require('./pivotalFetcher');
 const herokuFetcher = require('./herokuFetcher');
 const travisFetcher = require('./travisFetcher');
 const redmineFetcher = require('./redmineFetcher');
+const jiraFetcher = require('./jiraFetcher');
 const codeclimateFetcher = require('./codeclimateFetcher');
 const sourcesManager = require('../sourcesManager/sourcesManager');
 
@@ -422,6 +423,23 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                     from: from,
                     to: to,
                     token: generateToken(integrations.redmine.apiKey, authKeys.redmine, ''),
+                    endpoint: endpoint,
+                    endpointType: endpointType,
+                    mustMatch: mustMatch
+                  })
+                  .then((data) => {
+                    resolve(data);
+                  }).catch(err => {
+                    reject(err);
+                  });
+                break;
+              case 'jira':
+                jiraFetcher
+                  .getInfo({
+                    jiraApiBaseUrl: integrations.jira.jiraApiBaseUrl,
+                    from: from,
+                    to: to,
+                    token: generateToken(integrations.jira.apiKey, authKeys.jira, ''),
                     endpoint: endpoint,
                     endpointType: endpointType,
                     mustMatch: mustMatch

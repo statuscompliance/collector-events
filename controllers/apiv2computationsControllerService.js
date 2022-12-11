@@ -268,8 +268,6 @@ const generateIntegrationsFromScopeInfo = (scope) => {
     }
   }
 
-  // console.log("INTEGRATIONS: ", integrations)
-
   return integrations;
 };
 
