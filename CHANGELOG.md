@@ -1,3 +1,13 @@
+# [1.13.0](https://github.com/governify/collector-events/compare/v1.12.0...v1.13.0) (2022-12-11)
+
+
+### Features
+
+* Added more functionality to Redmine and Gitlab fetchers ([2af8940](https://github.com/governify/collector-events/commit/2af8940f748d8bb45fb1a09f0920e7d16b88201b))
+* Added support for Jira ([743d751](https://github.com/governify/collector-events/commit/743d751bddcabddd8b3d591db8fe01b2cce1ccfe))
+
+
+
 # [1.12.0](https://github.com/governify/collector-events/compare/v1.11.0...v1.12.0) (2022-11-17)
 
 
