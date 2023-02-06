@@ -51,11 +51,12 @@ module.exports.addComputation = function addComputation (req, res, next) {
           const integrations = generateIntegrationsFromScopeInfo(response.scope);
           const members = response.scope.members;
 
+
           // Call to compute to calculate everything and insert it into results
           calculateComputations(dsl, periods, integrations, { ...authKeys }, members).then((computations) => {
             results[computationId] = computations;
           }).catch(err => {
-            logger.error('addComputation.calculateComputations:\n' + err);
+            logger.error('addComputation.calculateComputations:\n', err);
             results[computationId] = err.message;
           });
         }).catch(err => {
@@ -153,12 +154,14 @@ const getPeriods = (dsl) => {
       } else {
         // Translate period string to actual days and obtain number of periods
         const periodLengths = {
+          fiveMinutes: 1 / 288,
+          hourly: 1 / 24,
           daily: 1,
           weekly: 7,
           biweekly: 14,
           monthly: 30,
           bimonthly: 60,
-          annually: 365
+          annually: 365,
         };
         const periodLength = periodLengths[windowPeriod];
         if (periodLength === undefined) { reject(new Error('metric.window.period must be within these: daily, weekly, biweekly, monthly, bimonthly, annually.')); }
@@ -281,6 +284,8 @@ const calculateComputations = (dsl, periods, integrations, authKeys, members) =>
       if (metric.scope.member === '*') {
         for (const period of periods) {
           for (const member of members) {
+            
+
             const promise = new Promise((resolve, reject) => {
               fetcher.compute(metric, period.from, period.to, integrations, authKeys, member).then(result => {
                 if (!isNaN(result.metric)) {

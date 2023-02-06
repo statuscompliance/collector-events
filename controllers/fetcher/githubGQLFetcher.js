@@ -97,8 +97,10 @@ const getMatches = (objects, filters) => {
         const filterMustMatch = splitted[1].split("'")[1];
 
         if (filterObjectLocation.includes('*any*')) {
+          
           let matched2 = false;
           const splitted2 = filterObjectLocation.split('.*any*.');
+
           for (const object2 of getSubObject(object, splitted2[0])) {
             if (getSubObject(object2, splitted2[1]) === filterMustMatch) {
               matched2 = true;
