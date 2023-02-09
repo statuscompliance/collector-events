@@ -1,3 +1,12 @@
+# [1.14.0](https://github.com/governify/collector-events/compare/v1.13.0...v1.14.0) (2023-02-09)
+
+
+### Features
+
+* Implemented stories for PT and few periodLenghts ([0cf4ff2](https://github.com/governify/collector-events/commit/0cf4ff28002aa8e5ef5c5400e1334d5dee226aca))
+
+
+
 # [1.13.0](https://github.com/governify/collector-events/compare/v1.12.0...v1.13.0) (2022-12-11)
 
 
