@@ -20,10 +20,12 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
     try {
       const element = dsl.element;
       const metricType = typeof element === typeof '' ? element : Object.keys(element)[0];
+
       let evidences;
 
       const mainEvents = {};
       const mainEventType = Object.keys(dsl.event)[0];
+
       // First we obtain The main events
       getEventsFromJson(dsl.event, from, to, { ...integrations }, authKeys, member).then((events) => {
         mainEvents[mainEventType] = events;
@@ -56,6 +58,7 @@ const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEven
         resolve({ metric: metric, evidences: evidences });
       } else if (metricType === 'percentage' || metricType === 'count') {
         const percentageType = Object.keys(dsl.element[metricType])[0];
+
         let percentageNum;
 
         if (percentageType === 'related') {
@@ -185,6 +188,7 @@ const getMetricAndEvidences = (dsl, from, to, integrations, mainEvents, mainEven
 
 // From a "specified related json" finds the matches of the events based on a time window
 const getEventMatches = (relatedObject, mainEventsObject, mainEndpointType, from, to, integrations, authKeys, member, mainEventObject) => {
+
   return new Promise((resolve, reject) => {
     try {
       const relatedKeys = Object.keys(relatedObject);
@@ -282,6 +286,7 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
         } else {
           // Replace each %% needed to be replaced with an integration
           const mustMatch = sourcesManager.getMustMatch(json[eventType][endpointType], integrations, member);
+          
           if (mustMatch === undefined) {
             reject(new Error('There was a problem getting the mustMatch.'));
           } else {
@@ -481,6 +486,7 @@ const findMatches = (mainEvents, mainEventType, mainEndpointType, secondaryEvent
   return new Promise((resolve, reject) => {
     try {
       const matches = [];
+
       for (const mainEvent of mainEvents) {
         for (const secondaryEvent of secondaryEvents) {
           // Get event dates

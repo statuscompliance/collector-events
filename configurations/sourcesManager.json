@@ -88,6 +88,10 @@
             "activity": {
                 "endpoint": "/projects/{pivotal.projectId}/activity",
                 "payloadDate": "occurred_at"
+            },
+            "stories": {
+                "endpoint": "/projects/{pivotal.projectId}/stories",
+                "payloadDate": "updated_at"
             }
         },
         "heroku": {

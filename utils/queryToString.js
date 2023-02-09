@@ -1,14 +1,42 @@
 const query = `{
-  repository(name: "%PROJECT.github.repository%", owner: "%PROJECT.github.repoOwner%") {
-    issues(first: 100) {
+  repository(owner: "matosan24", name: "bluejay-redmine-test") {
+    projectsV2(first: 5) {
       nodes {
-        timelineItems(last: 100) {
+        items(first: 100) {
           nodes {
-            ... on MovedColumnsInProjectEvent {
-              id
-              createdAt
-              projectColumnName
-              previousProjectColumnName 
+            fieldValues(first: 10) {
+              nodes {
+                ... on ProjectV2ItemFieldRepositoryValue {
+                  field {
+                    ... on ProjectV2Field {
+                      name
+                    }
+                  }
+                  repository {
+                    nameWithOwner
+                  }
+                }
+                ... on ProjectV2ItemFieldTextValue {
+                  text
+                  field {
+                    ... on ProjectV2Field {
+                      name
+                    }
+                  }
+                }
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  name
+                  updatedAt
+                  creator {
+                    login
+                  }
+                  field {
+                    ... on ProjectV2SingleSelectField {
+                      name
+                    }
+                  }
+                }
+              }
             }
           }
         }
