@@ -1,3 +1,12 @@
+# [1.15.0](https://github.com/governify/collector-events/compare/v1.14.0...v1.15.0) (2023-02-12)
+
+
+### Features
+
+* Installed newrelic ([cefa31a](https://github.com/governify/collector-events/commit/cefa31a68d8f5b3a8a18410054aa18af4b5e8e88))
+
+
+
 # [1.14.0](https://github.com/governify/collector-events/compare/v1.13.0...v1.14.0) (2023-02-09)
 
 
