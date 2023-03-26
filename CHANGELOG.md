@@ -1,3 +1,12 @@
+# [1.16.0](https://github.com/governify/collector-events/compare/v1.15.0...v1.16.0) (2023-03-26)
+
+
+### Features
+
+* Added customizable logs for GHGQL and fixed bug in GH fetcher ([88b0698](https://github.com/governify/collector-events/commit/88b0698fec147e2d33d175c912fb257e32e4e3dc))
+
+
+
 # [1.15.0](https://github.com/governify/collector-events/compare/v1.14.0...v1.15.0) (2023-02-12)
 
 
