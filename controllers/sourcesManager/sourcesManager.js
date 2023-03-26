@@ -24,7 +24,7 @@ exports.getEndpoint = (eventType, endpointType, integrations) => {
 
     return endpoint;
   } catch (err) {
-    logger.error('sourcesManager.getEndpoint:\n' + err);
+    logger.error('sourcesManager.getEndpoint:\n', err);
     return undefined;
   }
 };
@@ -79,7 +79,7 @@ exports.getMustMatch = (json, integrations, member) => {
 
     return mustMatch;
   } catch (err) {
-    logger.error('sourcesManager.getMustMatch:\n' + err);
+    logger.error('sourcesManager.getMustMatch:\n', err);
     return undefined;
   }
 };
@@ -105,7 +105,7 @@ exports.getEventDate = (eventType, endpointType, event) => {
       return eventDate;
     }
   } catch (err) {
-    logger.error('sourcesManager.getEventDate:\n' + err);
+    logger.error('sourcesManager.getEventDate:\n', err);
     return undefined;
   }
 };

@@ -5,10 +5,6 @@ const redisManager = require('./redisManager');
 const logger = require('governify-commons').getLogger().tag('fetcher-githubGQL');
 
 const apiUrl = 'https://api.github.com';
-// const eventType = 'githubGQL';
-
-// const requestCache = {};
-// let cacheDate;
 
 // Function who controls the script flow
 const getInfo = (options) => {
@@ -27,7 +23,7 @@ const getInfo = (options) => {
             logger.error(err);
             cached = null;
           }
-          if (step.cache && cached !== null) {
+          if (step.cache && cached) {
             resultData = cached;
           } else {
             await getDataPaginated(step.query, options.token).then(data => {
@@ -38,9 +34,19 @@ const getInfo = (options) => {
             });
           }
         } else if (step.type === 'objectGetSubObject' || step.type === 'objectGetSubObjects') {
+          if (options.debug || step.debug) {
+            logger.info("STEP DEBUG: Step.location: ", step.location);
+            logger.info("STEP DEBUG: ResultData before getSubObject: ", JSON.stringify(resultData));
+          }
           resultData = getSubObject(resultData, step.location);
+          if (options.debug || step.debug) logger.info("STEP DEBUG: ResultData after getSubObject: ", JSON.stringify(resultData));
         } else if (step.type === 'objectsFilterObject' || step.type === 'objectsFilterObjects') {
+          if (options.debug || step.debug) {
+            logger.info("STEP DEBUG: Step.filters: ", step.filters);
+            logger.info("STEP DEBUG: ResultData before getMatches: ", JSON.stringify(resultData));
+          }
           resultData = getMatches(resultData, step.filters);
+          if (options.debug || step.debug) logger.info("STEP DEBUG: ResultData after getMatches: ", JSON.stringify(resultData));
           if (step.type === 'objectsFilterObject') {
             switch (step.keep) {
               case 'first': resultData = resultData[0]; break;
@@ -53,18 +59,25 @@ const getInfo = (options) => {
             }
           }
         } else if (step.type === 'runScript') {
+          if (options.debug || step.debug) {
+            logger.info("STEP DEBUG: Step.script: ", step.script);
+            logger.info("STEP DEBUG: Step.variables: ", step.variables);
+            logger.info("STEP DEBUG: ResultData before runScript: ", JSON.stringify(resultData));
+          }
           resultData = requireFromString(step.script).generic(resultData, { ...step.variables, from: options.from, to: options.to });
+          if (options.debug || step.debug) logger.info("STEP DEBUG: ResultData after runScript: ", JSON.stringify(resultData));
         }
       }
       resolve(resultData);
     } catch (err) {
+      logger.error(err);
       reject(err);
     }
   });
 };
 
 // Require() file from string
-function requireFromString (src, filename = 'default') {
+function requireFromString(src, filename = 'default') {
   var Module = module.constructor;
   var m = new Module();
   m._compile(src, filename);
@@ -97,7 +110,7 @@ const getMatches = (objects, filters) => {
         const filterMustMatch = splitted[1].split("'")[1];
 
         if (filterObjectLocation.includes('*any*')) {
-          
+
           let matched2 = false;
           const splitted2 = filterObjectLocation.split('.*any*.');
 

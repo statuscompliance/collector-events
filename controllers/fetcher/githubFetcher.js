@@ -95,11 +95,16 @@ const getDataPaginated = (url, token, to, page = 1) => {
     } else {
       const requestConfig = token ? { Authorization: token } : {};
       fetcherUtils.requestWithHeaders(requestUrl, requestConfig).then((data) => {
+
         if (data.length && data.length !== 0) {
           cacheData(data, requestUrl, to);
-          getDataPaginated(url, token, to, page + 1).then(recData => {
-            resolve(data.concat(recData));
-          }).catch((err) => { reject(err); });
+          if (data.length === 30) { // Returns 30 elements per page, so if we get less than 30, we are in the last page
+            getDataPaginated(url, token, to, page + 1).then(recData => {
+              resolve(data.concat(recData));
+            }).catch((err) => { reject(err); });
+          } else {
+            resolve(data);
+          }
         } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
           logger.error('Problem when requesting GH payload:\n', data);
 
