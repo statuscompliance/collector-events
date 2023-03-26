@@ -60,7 +60,7 @@ module.exports.addComputation = function addComputation (req, res, next) {
             results[computationId] = err.message;
           });
         }).catch(err => {
-          logger.error('addComputation.getScopeInfo:\n' + err);
+          logger.error('addComputation.getScopeInfo:\n', err);
           results[computationId] = err.message;
         });
 
@@ -72,15 +72,15 @@ module.exports.addComputation = function addComputation (req, res, next) {
           computation: '/api/v2/computations/' + computationId
         });
       }).catch(err => {
-        logger.error('addComputation.getPeriods:\n' + err);
+        logger.error('addComputation.getPeriods:\n', err);
         sendError(res, err, 400);
       });
     }).catch(err => {
-      logger.error('addComputation.validateInput:\n' + err);
+      logger.error('addComputation.validateInput:\n', err);
       sendError(res, err, 400);
     });
   } catch (err) {
-    logger.error('addComputation:\n' + err);
+    logger.error('addComputation:\n', err);
     sendError(res, err, 500);
   }
 };
@@ -285,7 +285,6 @@ const calculateComputations = (dsl, periods, integrations, authKeys, members) =>
         for (const period of periods) {
           for (const member of members) {
             
-
             const promise = new Promise((resolve, reject) => {
               fetcher.compute(metric, period.from, period.to, integrations, authKeys, member).then(result => {
                 if (!isNaN(result.metric)) {
