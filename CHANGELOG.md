@@ -1,3 +1,41 @@
+# [1.15.0](https://github.com/governify/collector-events/compare/v1.14.0...v1.15.0) (2023-02-12)
+
+
+### Features
+
+* Installed newrelic ([cefa31a](https://github.com/governify/collector-events/commit/cefa31a68d8f5b3a8a18410054aa18af4b5e8e88))
+
+
+
+# [1.14.0](https://github.com/governify/collector-events/compare/v1.13.0...v1.14.0) (2023-02-09)
+
+
+### Features
+
+* Implemented stories for PT and few periodLenghts ([0cf4ff2](https://github.com/governify/collector-events/commit/0cf4ff28002aa8e5ef5c5400e1334d5dee226aca))
+
+
+
+# [1.13.0](https://github.com/governify/collector-events/compare/v1.12.0...v1.13.0) (2022-12-11)
+
+
+### Features
+
+* Added more functionality to Redmine and Gitlab fetchers ([2af8940](https://github.com/governify/collector-events/commit/2af8940f748d8bb45fb1a09f0920e7d16b88201b))
+* Added support for Jira ([743d751](https://github.com/governify/collector-events/commit/743d751bddcabddd8b3d591db8fe01b2cce1ccfe))
+
+
+
+# [1.12.0](https://github.com/governify/collector-events/compare/v1.11.0...v1.12.0) (2022-11-17)
+
+
+### Features
+
+* Added endpoints to the sourcesManager.json ([1045329](https://github.com/governify/collector-events/commit/1045329b47bca14ba8126f9e9892635134dd17f3))
+* Redmine and Gitlab fetchers working ([a01be9c](https://github.com/governify/collector-events/commit/a01be9c1e6882c54a0903771ad4dbe97904aa736))
+
+
+
 # [1.11.0](https://github.com/governify/collector-events/compare/v1.10.0...v1.11.0) (2022-02-01)
 
 

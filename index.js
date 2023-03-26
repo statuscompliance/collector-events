@@ -1,5 +1,7 @@
 'use strict';
 
+if (process.env.NEW_RELIC_APP_NAME && process.env.NEW_RELIC_LICENSE_KEY) require('newrelic');
+
 const governify = require('governify-commons');
 const logger = governify.getLogger().tag('index');
 
