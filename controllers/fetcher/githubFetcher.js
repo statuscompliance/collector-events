@@ -86,9 +86,14 @@ const getDataPaginated = (url, token, to, page = 1) => {
 
     if (cached !== undefined && cacheDate !== undefined && Date.parse(to) < Date.parse(cacheDate)) {
       if (cached.length !== 0) {
-        getDataPaginated(url, token, to, page + 1).then(recData => {
-          resolve(cached.concat(recData));
-        }).catch((err) => { reject(err); });
+        logger.info("[CACHED] Requesting GitHub URL: ", requestUrl, "(Length: ", cached.length, ")");
+        if (cached.length === 30 && page < 10) { // Returns 30 elements per page, so if we get less than 30, we are in the last page
+          getDataPaginated(url, token, to, page + 1).then(recData => {
+            resolve(cached.concat(recData));
+          }).catch((err) => { reject(err); });
+        } else {
+          resolve(cached);
+        }
       } else {
         resolve([]);
       }
