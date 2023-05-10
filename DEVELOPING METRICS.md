@@ -72,6 +72,34 @@ It should look like this:
 
 Now we are ready to start testing our metric!
 
+_(NOTE: If you want to have more information about the metric calculation process, you can set the logging level to debug in each microservice that you need via Postman executing the following request:_
+```
+POST http://localhost:5400/commons/logger/config
+Body -> Raw -> JSON:
+{
+    "type": true,
+    "tracing": true,
+    "timestamp": true,
+    "tags": true,
+    "level": 1,
+    "storage": {
+        "active": true,
+        "level": 1
+    }
+}
+```
+_where the numbers of the levels indicate the priority of the logs as follows:_
+```
+DEBUG: 1,
+INFO: 2,
+WARN: 3,
+ERROR: 4,
+FATAL: 5,
+```
+![image](https://github.com/governify/collector-events/assets/63660411/c4ce9790-c85d-468f-b355-91a5ffeb03a5)
+
+_For example, you can check the repo being called if you take a look at the logs: ```Fetcher.getEventsFromJson: Performing GraphQL request to repository:  governifyauditor/Bluejay-2023-showcase```. Also, if you need to escape/unescape the GitHub GraphQL queries, you can use the following web: https://www.freeformatter.com/json-escape.html#before-output )_
+
 # Developing
 
 Now that we have set up our development environment, we can modify our metric as we want. Whenever we want to check what our metric returns, we can follow these simple steps:
