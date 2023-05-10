@@ -1,3 +1,7 @@
+## [1.16.2](https://github.com/governify/collector-events/compare/v1.16.1...v1.16.2) (2023-05-10)
+
+
+
 ## [1.16.1](https://github.com/governify/collector-events/compare/v1.16.0...v1.16.1) (2023-05-06)
 
 
