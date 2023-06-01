@@ -61,7 +61,7 @@ const getInfo = (options) => {
         } else if (step.type === 'runScript') {
           if (options.debug || step.debug) {
             logger.info("STEP DEBUG: Step.script: ", step.script);
-            logger.info("STEP DEBUG: Step.variables: ", step.variables);
+            logger.info("STEP DEBUG: Step.variables: ", JSON.stringify({ ...step.variables, from: options.from, to: options.to }));
             logger.info("STEP DEBUG: ResultData before runScript: ", JSON.stringify(resultData));
           }
           resultData = requireFromString(step.script).generic(resultData, { ...step.variables, from: options.from, to: options.to });
@@ -110,7 +110,6 @@ const getMatches = (objects, filters) => {
         const filterMustMatch = splitted[1].split("'")[1];
 
         if (filterObjectLocation.includes('*any*')) {
-
           let matched2 = false;
           const splitted2 = filterObjectLocation.split('.*any*.');
 

@@ -31,6 +31,8 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
         mainEvents[mainEventType] = events;
         evidences = events;
 
+        logger.debug('Fetcher.compute: Evidences obtained: ', JSON.stringify(evidences, null, 2));
+
         // We call getMetric to obtain the metric and evidences depending on the type
         getMetricAndEvidences(dsl, from, to, { ...integrations }, { ...mainEvents }, mainEventType, [...evidences], metricType, authKeys, member, dsl.event).then(result => {
           resolve(result);
@@ -237,28 +239,35 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
             steps[queryKey].query = steps[queryKey].query.replace('%PROJECT.github.repository%', integrations.github.repository).replace('%PROJECT.github.repoOwner%', integrations.github.repoOwner);
           });
 
+          logger.debug('Fetcher.getEventsFromJson: Performing GraphQL request to repository: ', integrations.github.repoOwner + "/" + integrations.github.repository);
+
           // Substitute match filters with member
           if (member) {
             const memberRegex = /%MEMBER\.[a-zA-Z0-9.]+%/g;
-            // For each step that its type is objectsFilterObject or objectsFilterObjects
-            for (const stepKey of Object.keys(steps).filter(stepKeyElement => ['objectsFilterObject', 'objectsFilterObjects'].includes(steps[stepKeyElement].type))) {
-              const newFilters = [];
-              // For each filter with a regex match
-              for (let filter of steps[stepKey].filters.filter(filterElement => memberRegex.test(filterElement))) {
-                // For each regex match in the filter
-                for (const regexMatch of filter.match(memberRegex)) {
-                  const splitted = regexMatch.replace(/%/g, '').replace('MEMBER.', '').split('.');
-                  const identity = member.identities.filter(e => e.source === splitted[0])[0];
-                  if (identity) {
-                    filter = filter.replace(regexMatch, identity[splitted[1]]);
+
+            for (const stepKey of Object.keys(steps).filter(stepKeyElement => ['objectsFilterObject', 'objectsFilterObjects', 'runScript'].includes(steps[stepKeyElement].type))) {
+              if (steps[stepKey].type === 'runScript') {
+                // Substitute in the script code directly
+                steps[stepKey].script = steps[stepKey].script.replace(/%MEMBER\.github\.username%/g, member.identities.filter(i => i.source === 'github')[0].username);
+              } else {
+                const newFilters = [];
+                // For each filter with a regex match
+                for (let filter of steps[stepKey].filters.filter(filterElement => memberRegex.test(filterElement))) {
+                  // For each regex match in the filter
+                  for (const regexMatch of filter.match(memberRegex)) {
+                    const splitted = regexMatch.replace(/%/g, '').replace('MEMBER.', '').split('.');
+                    const identity = member.identities.filter(e => e.source === splitted[0])[0];
+                    if (identity) {
+                      filter = filter.replace(regexMatch, identity[splitted[1]]);
+                    }
                   }
+
+                  newFilters.push(filter);
                 }
 
-                newFilters.push(filter);
+                // Replace substituted filters with the new filters and the non substituted ones
+                steps[stepKey].filters = newFilters.concat(steps[stepKey].filters.filter(filterElement => !memberRegex.test(filterElement)));
               }
-
-              // Replace substituted filters with the new filters and the non substituted ones
-              steps[stepKey].filters = newFilters.concat(steps[stepKey].filters.filter(filterElement => !memberRegex.test(filterElement)));
             }
           }
 
