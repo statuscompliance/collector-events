@@ -13,6 +13,10 @@
                 "endpoint": "/repos/{github.repoOwner}/{github.repository}/pulls?state=closed",
                 "payloadDate": "closed_at"
             },
+            "openPR": {
+                "endpoint": "/repos/{github.repoOwner}/{github.repository}/pulls?state=open",
+                "payloadDate": "created_at"
+            },
             "allPR": {
                 "endpoint": "/repos/{github.repoOwner}/{github.repository}/pulls?state=all",
                 "payloadDate": "created_at"
