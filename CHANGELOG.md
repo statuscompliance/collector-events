@@ -1,3 +1,18 @@
+# [1.17.0](https://github.com/governify/collector-events/compare/v1.16.2...v1.17.0) (2023-06-01)
+
+
+### Bug Fixes
+
+* Added the previous fix to the cached case ([c2682ed](https://github.com/governify/collector-events/commit/c2682ed52cb911a0a1b3ca392a28844136513298))
+* Workaround for GitHub's REST API's hard limit ([173311a](https://github.com/governify/collector-events/commit/173311a147afe69e365de073cfe03d9927fdeddc))
+
+
+### Features
+
+* Added member replacement for runScript and added new endpoint ([897463a](https://github.com/governify/collector-events/commit/897463a3abdd0a37cd39bce5d061e61272e98286))
+
+
+
 ## [1.16.2](https://github.com/governify/collector-events/compare/v1.16.1...v1.16.2) (2023-05-10)
 
 
