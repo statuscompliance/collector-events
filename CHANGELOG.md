@@ -1,3 +1,12 @@
+# [1.18.0](https://github.com/governify/collector-events/compare/v1.17.0...v1.18.0) (2023-06-20)
+
+
+### Features
+
+* added support for window option in custom events ([88fe11d](https://github.com/governify/collector-events/commit/88fe11d450bd023f1e29793518963cdc4e0b2cdb))
+
+
+
 # [1.17.0](https://github.com/governify/collector-events/compare/v1.16.2...v1.17.0) (2023-06-01)
 
 
