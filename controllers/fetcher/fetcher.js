@@ -559,6 +559,7 @@ const matchBinding = (mainEvent, secondaryEvent, relatedObject) => {
       for (const splitItem of bindingProperty.split('.')) {
         mainEventValue = mainEventValue[splitItem];
       }
+
       let secondaryEventValue = { ...secondaryEvent };
 
       for (const splitItem of binding.location.split('.')) {

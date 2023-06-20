@@ -87,7 +87,7 @@ exports.getMustMatch = (json, integrations, member) => {
 exports.getEventDate = (eventType, endpointType, event) => {
   try {
     if (endpointType === 'custom') {
-      return undefined;
+        return event?.payloadDate;
     } else {
       const payloadDatesJSON = { ...configJSON.endpoints };
       const split = payloadDatesJSON[eventType][endpointType].payloadDate.split('.');
