@@ -51,7 +51,6 @@ module.exports.addComputation = function addComputation (req, res, next) {
           const integrations = generateIntegrationsFromScopeInfo(response.scope);
           const members = response.scope.members;
 
-
           // Call to compute to calculate everything and insert it into results
           calculateComputations(dsl, periods, integrations, { ...authKeys }, members).then((computations) => {
             results[computationId] = computations;
