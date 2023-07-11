@@ -96,8 +96,8 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
 
       // Make request
       governify.httpClient.request(options).then(res => {
-        logger.debug('TemporalDB setting value: \n\t', JSON.stringify(structuredClone(data.data)));
-        setTemporalDB(cacheKey, _.cloneDeep);
+        logger.debug('TemporalDB setting value: \n\t', JSON.stringify(structuredClone(res.data)));
+        setTemporalDB(cacheKey, _.cloneDeep(res.data));
         setTimeout(() => {
           deleteTemporalDB(cacheKey);
         }, 10000);
