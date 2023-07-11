@@ -4,6 +4,7 @@
 const governify = require('governify-commons');
 const logger = governify.getLogger().tag('fetcher-utils');
 const sourcesManager = require('../sourcesManager/sourcesManager');
+const _ = require('lodash');
 
 const temporalDB = {};
 
@@ -54,12 +55,12 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
       }
 
       // Make request
-      governify.httpClient.request(options).then(data => {
-        temporalDB[cacheKey] = data.data;
+      governify.httpClient.request(options).then(res => {
+        temporalDB[cacheKey] = _.cloneDeep(res.data);
         setTimeout(() => {
           delete temporalDB[cacheKey];
         }, 10000);
-        resolve(data.data);
+        resolve(res.data);
       }).catch(err => {
         temporalDB[cacheKey] = 'error';
         setTimeout(() => {
@@ -84,7 +85,7 @@ const requestResolveCache = (url) => {
     } else if (temporalDB[url] === 'error') {
       reject(new Error('Invalid request'));
     } else {
-      resolve(temporalDB[url]);
+      resolve(_.cloneDeep(temporalDB[url]));
     }
   });
 };
