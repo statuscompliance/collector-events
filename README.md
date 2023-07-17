@@ -339,4 +339,6 @@ It takes data from GitHub GQL API containing information about the cards (projec
 ```
 As it can be seen it will filter and keep issues whose cards have been moved from a column called "In progress" to a column called "In review". It will also use the from and to  filter the data.
 
+## Cache in fetchers
 
+There's an object that acts as a cache in every fetcher. For development purposes, if any data is calculated, the fetcher or TPA is changed and then one proceeds to recalculate again, chances are the data already existing will not be changed since it is saved in the fetcher's cache. In order to fix this, it is necessary to restart the collector-events service and everything will be working as usual.

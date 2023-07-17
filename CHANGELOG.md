@@ -1,3 +1,44 @@
+# [1.18.0](https://github.com/governify/collector-events/compare/v1.17.0...v1.18.0) (2023-06-20)
+
+
+### Features
+
+* added support for window option in custom events ([88fe11d](https://github.com/governify/collector-events/commit/88fe11d450bd023f1e29793518963cdc4e0b2cdb))
+
+
+
+# [1.17.0](https://github.com/governify/collector-events/compare/v1.16.2...v1.17.0) (2023-06-01)
+
+
+### Bug Fixes
+
+* Added the previous fix to the cached case ([c2682ed](https://github.com/governify/collector-events/commit/c2682ed52cb911a0a1b3ca392a28844136513298))
+* Workaround for GitHub's REST API's hard limit ([173311a](https://github.com/governify/collector-events/commit/173311a147afe69e365de073cfe03d9927fdeddc))
+
+
+### Features
+
+* Added member replacement for runScript and added new endpoint ([897463a](https://github.com/governify/collector-events/commit/897463a3abdd0a37cd39bce5d061e61272e98286))
+
+
+
+## [1.16.2](https://github.com/governify/collector-events/compare/v1.16.1...v1.16.2) (2023-05-10)
+
+
+
+## [1.16.1](https://github.com/governify/collector-events/compare/v1.16.0...v1.16.1) (2023-05-06)
+
+
+
+# [1.16.0](https://github.com/governify/collector-events/compare/v1.15.0...v1.16.0) (2023-03-26)
+
+
+### Features
+
+* Added customizable logs for GHGQL and fixed bug in GH fetcher ([88b0698](https://github.com/governify/collector-events/commit/88b0698fec147e2d33d175c912fb257e32e4e3dc))
+
+
+
 # [1.15.0](https://github.com/governify/collector-events/compare/v1.14.0...v1.15.0) (2023-02-12)
 
 
