@@ -4,8 +4,49 @@
 const governify = require('governify-commons');
 const logger = governify.getLogger().tag('fetcher-utils');
 const sourcesManager = require('../sourcesManager/sourcesManager');
+const _ = require('lodash');
 
-const temporalDB = {};
+const temporalDB = new Map();
+const aux = []
+
+function getTemporalDB(key) {
+  logger.debug('TemporalDB aux before get: \n\t', JSON.stringify(aux, null, 2));
+  logger.debug('TemporalDB before get key: \n\t', JSON.stringify(temporalDB.entries(), null, 2));
+  const result = temporalDB.get(key);
+  logger.debug('TemporalDB after get key: \n\t', JSON.stringify(temporalDB.entries(), null, 2));
+  logger.debug('TemporalDB get result: \n\t', JSON.stringify(result));
+  logger.debug('Getting TemporalDB: \n\t', JSON.stringify(key, null, 2), ' \n\t=====\n\t ', JSON.stringify(result, null, 2));
+  logger.debug('TemporalDB aux after get: \n\t', JSON.stringify(aux, null, 2));
+  return result;
+};
+
+function setTemporalDB(key, value) {
+  logger.debug('Setting TemporalDB: \n\t', JSON.stringify(key, null, 2), ' \n\t=====\n\t ', JSON.stringify(structuredClone(value), null, 2));
+  logger.debug('TemporalDB aux before set: \n\t', JSON.stringify(aux, null, 2));
+  if (value !== undefined) {
+    logger.debug('TemporalDB setting value: \n\t', JSON.stringify(structuredClone(value)));
+  }
+  temporalDB.set(key, structuredClone(value));
+  aux.push({[new Date().getTime()]: structuredClone(value)});
+  logger.debug('TemporalDB aux after set: \n\t', JSON.stringify(temporalDB.entries(), null, 2));
+};
+
+function deleteTemporalDB(key) {
+  logger.debug('Deleting TemporalDB: \n\t', JSON.stringify(key, null, 2));
+  temporalDB.delete(key);
+};
+
+function includesTemporalDB(key) {
+  const result = temporalDB.has(key);
+  logger.debug('TemporalDB includes: \n\t', JSON.stringify(key, null, 2), ' \n\t=====\n\t ', result);
+  return result;
+}
+
+function hasValueTemporalDB(key) {
+  const result = getTemporalDB(key) !== undefined;
+  logger.debug('TemporalDB has value: \n\t', JSON.stringify(key, null, 2), ' \n\t=====\n\t ', result);
+  return result;
+}
 
 const defaultOptions = {
   method: 'GET',
@@ -18,7 +59,7 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
     // Cache key for GET and POST requests
     const cacheKey = !data ? url : url + JSON.stringify(data);
 
-    if (Object.keys(temporalDB).includes(cacheKey)) {
+    if (includesTemporalDB(cacheKey)) {
       requestResolveCache(cacheKey).then(data => {
         resolve(data);
       }).catch(err => {
@@ -26,7 +67,7 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
       });
     } else {
       // Set temporal db to undefined for not requesting multiple times
-      temporalDB[cacheKey] = undefined;
+      setTemporalDB(cacheKey, undefined);
 
       // Create request
       const options = { ...defaultOptions };
@@ -54,16 +95,17 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
       }
 
       // Make request
-      governify.httpClient.request(options).then(data => {
-        temporalDB[cacheKey] = data.data;
+      governify.httpClient.request(options).then(res => {
+        logger.debug('TemporalDB setting value: \n\t', JSON.stringify(structuredClone(res.data)));
+        setTemporalDB(cacheKey, _.cloneDeep(res.data));
         setTimeout(() => {
-          delete temporalDB[cacheKey];
+          deleteTemporalDB(cacheKey);
         }, 10000);
-        resolve(data.data);
+        resolve(res.data);
       }).catch(err => {
-        temporalDB[cacheKey] = 'error';
+        setTemporalDB(cacheKey, 'error');
         setTimeout(() => {
-          delete temporalDB[cacheKey];
+          deleteTemporalDB(cacheKey);
         }, 10000);
         reject(err);
       });
@@ -73,7 +115,7 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
 
 const requestResolveCache = (url) => {
   return new Promise((resolve, reject) => {
-    if (temporalDB[url] === undefined) {
+    if (!hasValueTemporalDB(url)) {
       setTimeout(() => {
         requestResolveCache(url).then(data => {
           resolve(data);
@@ -81,10 +123,10 @@ const requestResolveCache = (url) => {
           reject(err);
         });
       }, 1000);
-    } else if (temporalDB[url] === 'error') {
+    } else if (getTemporalDB(url) === 'error') {
       reject(new Error('Invalid request'));
     } else {
-      resolve(temporalDB[url]);
+      resolve(_.cloneDeep(getTemporalDB(url)));
     }
   });
 };
