@@ -1,3 +1,12 @@
+## [1.19.1](https://github.com/governify/collector-events/compare/v1.19.0...v1.19.1) (2023-07-28)
+
+
+### Bug Fixes
+
+* fixed typo in fetcherUtils ([a964ed7](https://github.com/governify/collector-events/commit/a964ed70f2596bd0a846c8406c857167a0fe3dad))
+
+
+
 # [1.19.0](https://github.com/governify/collector-events/compare/v1.18.0...v1.19.0) (2023-07-17)
 
 
