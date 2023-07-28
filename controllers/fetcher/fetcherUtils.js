@@ -21,13 +21,13 @@ function getTemporalDB(key) {
 };
 
 function setTemporalDB(key, value) {
-  logger.debug('Setting TemporalDB: \n\t', JSON.stringify(key, null, 2), ' \n\t=====\n\t ', JSON.stringify(structuredClone(value), null, 2));
+  logger.debug('Setting TemporalDB: \n\t', JSON.stringify(key, null, 2), ' \n\t=====\n\t ', JSON.stringify(_.cloneDeep(value), null, 2));
   logger.debug('TemporalDB aux before set: \n\t', JSON.stringify(aux, null, 2));
   if (value !== undefined) {
-    logger.debug('TemporalDB setting value: \n\t', JSON.stringify(structuredClone(value)));
+    logger.debug('TemporalDB setting value: \n\t', JSON.stringify(_.cloneDeep(value)));
   }
-  temporalDB.set(key, structuredClone(value));
-  aux.push({[new Date().getTime()]: structuredClone(value)});
+  temporalDB.set(key, _.cloneDeep(value));
+  aux.push({[new Date().getTime()]: _.cloneDeep(value)});
   logger.debug('TemporalDB aux after set: \n\t', JSON.stringify(temporalDB.entries(), null, 2));
 };
 
@@ -96,7 +96,7 @@ const requestWithHeaders = (url, extraHeaders, data = undefined) => {
 
       // Make request
       governify.httpClient.request(options).then(res => {
-        logger.debug('TemporalDB setting value: \n\t', JSON.stringify(structuredClone(res.data)));
+        logger.debug('TemporalDB setting value: \n\t', JSON.stringify(_.cloneDeep(res.data)));
         setTemporalDB(cacheKey, _.cloneDeep(res.data));
         setTimeout(() => {
           deleteTemporalDB(cacheKey);
