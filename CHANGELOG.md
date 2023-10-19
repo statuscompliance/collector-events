@@ -1,3 +1,17 @@
+# [1.20.0](https://github.com/governify/collector-events/compare/v1.19.1...v1.20.0) (2023-10-19)
+
+
+### Bug Fixes
+
+* removed New relic from package.json ([e194901](https://github.com/governify/collector-events/commit/e19490107e5b5e4f748d6fb19188bfc08488613e))
+
+
+### Features
+
+* added cors ([370aa14](https://github.com/governify/collector-events/commit/370aa14c6a4b559de89bbea26404f18a3fb11a6b))
+
+
+
 ## [1.19.1](https://github.com/governify/collector-events/compare/v1.19.0...v1.19.1) (2023-07-28)
 
 
