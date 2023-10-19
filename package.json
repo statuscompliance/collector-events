@@ -9,6 +9,7 @@
     "coverage": "nyc --reporter=lcov mocha ./tests/test.js --timeout 20000 -s 20",
     "cov": "nyc mocha ./tests/test.js --timeout 20000 -s 20",
     "start": "node index.js",
+    "dev": "nodemon index.js",
     "lint": "semistandard",
     "lint-fix": "semistandard --fix",
     "precommit": "semistandard --fix && nyc mocha ./tests/test.js --timeout 20000 -s 5"
@@ -20,6 +21,7 @@
   "private": true,
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.16.3",

@@ -12,6 +12,9 @@ const deploy = (env, commonsMiddleware) => {
       var express = require('express');
       var app = express();
       var bodyParser = require('body-parser');
+      const cors = require('cors');
+
+      app.use(cors());
       app.use(bodyParser.json({
         strict: false
       }));
