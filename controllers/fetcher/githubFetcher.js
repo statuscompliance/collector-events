@@ -1,10 +1,10 @@
-'use strict';
+"use strict";
 
-const fetcherUtils = require('./fetcherUtils');
-const logger = require('governify-commons').getLogger().tag('fetcher-github');
+const fetcherUtils = require("./fetcherUtils");
+const logger = require("governify-commons").getLogger().tag("fetcher-github");
 
-const apiUrl = 'https://api.github.com';
-const eventType = 'github';
+const apiUrl = "https://api.github.com";
+const eventType = "github";
 
 let requestCache = {};
 let cacheDate;
@@ -12,67 +12,87 @@ let cacheDate;
 // Function who controls the script flow
 const getInfo = (options) => {
   return new Promise((resolve, reject) => {
-    getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {
-      fetcherUtils.applyFilters(
-        data,
-        options.from,
-        options.to,
-        options.mustMatch,
-        options.endpointType,
-        eventType
-      ).then((filteredData) => {
-        // TODO - Generalyze
-        if (options.endpointType === 'closedPRFiles') {
-          const result = [];
-          const promises = [];
+    getDataPaginated(apiUrl + options.endpoint, options.token, options.to)
+      .then((data) => {
+        fetcherUtils
+          .applyFilters(
+            data,
+            options.from,
+            options.to,
+            options.mustMatch,
+            options.endpointType,
+            eventType
+          )
+          .then((filteredData) => {
+            // TODO - Generalyze
+            if (options.endpointType === "closedPRFiles") {
+              const result = [];
+              const promises = [];
 
-          for (const closedPR of filteredData) {
-            const promise = new Promise((resolve, reject) => {
-              try {
-                getDataPaginated(apiUrl + options.endpoint.split('?')[0] + '/' + closedPR.number + '/files', options.token, options.to).then(closedPRFiles => {
-                  closedPRFiles[0].closed_at = closedPR.closed_at; // Add the date for the matches
-                  result.push(closedPRFiles[0]);
-                  resolve();
-                }).catch(err => {
+              for (const closedPR of filteredData) {
+                const promise = new Promise((resolve, reject) => {
+                  try {
+                    getDataPaginated(
+                      apiUrl +
+                        options.endpoint.split("?")[0] +
+                        "/" +
+                        closedPR.number +
+                        "/files",
+                      options.token,
+                      options.to
+                    )
+                      .then((closedPRFiles) => {
+                        closedPRFiles[0].closed_at = closedPR.closed_at; // Add the date for the matches
+                        result.push(closedPRFiles[0]);
+                        resolve();
+                      })
+                      .catch((err) => {
+                        reject(err);
+                      });
+                  } catch (err) {
+                    reject(err);
+                  }
+                });
+                promises.push(promise);
+              }
+
+              Promise.all(promises)
+                .then(() => {
+                  let secondMustMatch = options.mustMatch;
+
+                  if (JSON.stringify(secondMustMatch).includes("%SECOND%")) {
+                    // Matching filter generation with only %SECOND% strings
+                    secondMustMatch = getSecondMustMatch(options.mustMatch);
+                    // Apply new filter
+                    fetcherUtils
+                      .applyFilters(
+                        result,
+                        options.from,
+                        options.to,
+                        secondMustMatch,
+                        options.endpointType,
+                        eventType
+                      )
+                      .then((finalResult) => {
+                        resolve(finalResult);
+                      })
+                      .catch((err) => reject(err));
+                  } else {
+                    resolve(result);
+                  }
+                })
+                .catch((err) => {
                   reject(err);
                 });
-              } catch (err) {
-                reject(err);
-              }
-            });
-            promises.push(promise);
-          }
-
-          Promise.all(promises).then(() => {
-            let secondMustMatch = options.mustMatch;
-
-            if (JSON.stringify(secondMustMatch).includes('%SECOND%')) {
-              // Matching filter generation with only %SECOND% strings
-              secondMustMatch = getSecondMustMatch(options.mustMatch);
-              // Apply new filter
-              fetcherUtils.applyFilters(
-                result,
-                options.from,
-                options.to,
-                secondMustMatch,
-                options.endpointType,
-                eventType
-              ).then(finalResult => {
-                resolve(finalResult);
-              }).catch(err => reject(err));
             } else {
-              resolve(result);
+              resolve(filteredData);
             }
-          }).catch(err => {
-            reject(err);
-          });
-        } else {
-          resolve(filteredData);
-        }
-      }).catch(err => reject(err));
-    }).catch(err => {
-      reject(err);
-    });
+          })
+          .catch((err) => reject(err));
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 };
 
@@ -80,17 +100,34 @@ const getInfo = (options) => {
 const getDataPaginated = (url, token, to, page = 1) => {
   return new Promise((resolve, reject) => {
     let requestUrl = url;
-    requestUrl += requestUrl.split('/').pop().includes('?') ? '&page=' + page : '?page=' + page;
+    requestUrl += requestUrl.split("/").pop().includes("?")
+      ? "&page=" + page
+      : "?page=" + page;
 
     const cached = requestCache[requestUrl];
 
-    if (cached !== undefined && cacheDate !== undefined && Date.parse(to) < Date.parse(cacheDate)) {
+    if (
+      cached !== undefined &&
+      cacheDate !== undefined &&
+      Date.parse(to) < Date.parse(cacheDate)
+    ) {
       if (cached.length !== 0) {
-        logger.info("[CACHED] Requesting GitHub URL: ", requestUrl, "(Length: ", cached.length, ")");
-        if (cached.length === 30 && page < 10) { // Returns 30 elements per page, so if we get less than 30, we are in the last page
-          getDataPaginated(url, token, to, page + 1).then(recData => {
-            resolve(cached.concat(recData));
-          }).catch((err) => { reject(err); });
+        logger.info(
+          "[CACHED] Requesting GitHub URL: ",
+          requestUrl,
+          "(Length: ",
+          cached.length,
+          ")"
+        );
+        if (cached.length === 30 && page < 10) {
+          // Returns 30 elements per page, so if we get less than 30, we are in the last page
+          getDataPaginated(url, token, to, page + 1)
+            .then((recData) => {
+              resolve(cached.concat(recData));
+            })
+            .catch((err) => {
+              reject(err);
+            });
         } else {
           resolve(cached);
         }
@@ -99,37 +136,63 @@ const getDataPaginated = (url, token, to, page = 1) => {
       }
     } else {
       const requestConfig = token ? { Authorization: token } : {};
-      fetcherUtils.requestWithHeaders(requestUrl, requestConfig).then((data) => {
+      fetcherUtils
+        .requestWithHeaders(requestUrl, requestConfig)
+        .then((data) => {
+          if (data.length && data.length !== 0) {
+            cacheData(data, requestUrl, to);
+            logger.info(
+              "Requesting GitHub URL: ",
+              requestUrl,
+              "(Length: ",
+              data.length,
+              ")"
+            );
+            if (data.length === 30 && page < 10) {
+              // Returns 30 elements per page, so if we get less than 30, we are in the last page
+              getDataPaginated(url, token, to, page + 1)
+                .then((recData) => {
+                  resolve(data.concat(recData));
+                })
+                .catch((err) => {
+                  reject(err);
+                });
+            } else {
+              resolve(data);
+            }
+          } else if (typeof data[Symbol.iterator] !== "function") {
+            // If not iterable
+            logger.error("Problem when requesting GH payload:\n", data);
 
-        if (data.length && data.length !== 0) {
-          cacheData(data, requestUrl, to);
-          logger.info("Requesting GitHub URL: ", requestUrl, "(Length: ", data.length, ")");
-          if (data.length === 30 && page < 10) { // Returns 30 elements per page, so if we get less than 30, we are in the last page
-            getDataPaginated(url, token, to, page + 1).then(recData => {
-              resolve(data.concat(recData));
-            }).catch((err) => { reject(err); });
+            if (data.message === "Not Found") {
+              reject(
+                new Error(
+                  "GitHub project not found or unauthorized. URL: " + requestUrl
+                )
+              );
+            } else {
+              reject(
+                new Error(
+                  "Problem when requesting to GitHub. URL: " + requestUrl
+                )
+              );
+            }
           } else {
-            resolve(data);
+            cacheData([], requestUrl, to);
+            resolve([]);
           }
-        } else if (typeof data[Symbol.iterator] !== 'function') { // If not iterable
-          logger.error('Problem when requesting GH payload:\n', data);
-
-          if (data.message === 'Not Found') {
-            reject(new Error('GitHub project not found or unauthorized. URL: ' + requestUrl));
-          } else {
-            reject(new Error('Problem when requesting to GitHub. URL: ' + requestUrl));
-          }
-        } else {
-          cacheData([], requestUrl, to);
-          resolve([]);
-        }
-      }).catch((err) => { reject(err); });
+        })
+        .catch((err) => {
+          reject(err);
+        });
     }
   });
 };
 
 const cacheData = (data, requestUrl, to) => {
-  if (cacheDate !== undefined && Date.parse(to) < Date.parse(cacheDate)) { requestCache[requestUrl] = data; } else {
+  if (cacheDate !== undefined && Date.parse(to) < Date.parse(cacheDate)) {
+    requestCache[requestUrl] = data;
+  } else {
     requestCache = {};
     requestCache[requestUrl] = data;
     cacheDate = new Date().toISOString();
@@ -145,9 +208,9 @@ const getSecondMustMatch = (mustMatch) => {
         if (Object.keys(copy[key]).length === 0) {
           delete copy[key];
         }
-      } else if (typeof copy[key] === typeof '') {
-        if (copy[key].includes('%SECOND%')) {
-          copy[key] = copy[key].split('%SECOND%')[1];
+      } else if (typeof copy[key] === typeof "") {
+        if (copy[key].includes("%SECOND%")) {
+          copy[key] = copy[key].split("%SECOND%")[1];
         } else {
           delete copy[key];
         }

@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
-const fetcherUtils = require('./fetcherUtils');
+const fetcherUtils = require("./fetcherUtils");
 
-const apiUrl = 'https://git-wrapper.herokuapp.com';
-const eventType = 'ghwrapper';
+const apiUrl = "https://git-wrapper.herokuapp.com";
+const eventType = "ghwrapper";
 
 let requestCache = {};
 let cacheDate;
@@ -11,16 +11,29 @@ let cacheDate;
 // Function who controls the script flow
 const getInfo = (options) => {
   return new Promise((resolve, reject) => {
-    getDataPaginated(apiUrl + options.endpoint, options.token, options.to).then((data) => {
-      fetcherUtils.applyFilters(data, options.from, options.to, options.mustMatch, options.endpointType, eventType).then((filteredData) => {
-        resolve(filteredData);
-      }).catch(err => reject(err));
-    }).catch(err => reject(err));
+    getDataPaginated(apiUrl + options.endpoint, options.token, options.to)
+      .then((data) => {
+        fetcherUtils
+          .applyFilters(
+            data,
+            options.from,
+            options.to,
+            options.mustMatch,
+            options.endpointType,
+            eventType
+          )
+          .then((filteredData) => {
+            resolve(filteredData);
+          })
+          .catch((err) => reject(err));
+      })
+      .catch((err) => reject(err));
   });
 };
 
 // Paginates heroku data to retrieve everything
-const getDataPaginated = (url, token, to) => { // TODO - Paginate heroku data
+const getDataPaginated = (url, token, to) => {
+  // TODO - Paginate heroku data
   return new Promise((resolve, reject) => {
     /* let page = 1;
     let paginating = true;
@@ -46,7 +59,11 @@ const getDataPaginated = (url, token, to) => { // TODO - Paginate heroku data
 
     const cached = requestCache[url];
 
-    if (cached !== undefined && cacheDate !== undefined && Date.parse(to) < Date.parse(cacheDate)) {
+    if (
+      cached !== undefined &&
+      cacheDate !== undefined &&
+      Date.parse(to) < Date.parse(cacheDate)
+    ) {
       resolve(cached);
     } else {
       fetcherUtils.requestWithHeaders(url, {}).then((data) => {
