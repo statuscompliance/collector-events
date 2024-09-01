@@ -11,6 +11,7 @@ const herokuFetcher = require("./herokuFetcher");
 const travisFetcher = require("./travisFetcher");
 const redmineFetcher = require("./redmineFetcher");
 const jiraFetcher = require("./jiraFetcher");
+const statusFetcher = require("./statusFetcher");
 const codeclimateFetcher = require("./codeclimateFetcher");
 const sourcesManager = require("../sourcesManager/sourcesManager");
 
@@ -30,6 +31,7 @@ const compute = (dsl, from, to, integrations, authKeys, member) => {
       // First we obtain The main events
       getEventsFromJson(
         dsl.event,
+        dsl.config,
         from,
         to,
         { ...integrations },
@@ -340,7 +342,15 @@ const getEventMatches = (
 };
 
 // Function that gets the events from a given json object
-const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
+const getEventsFromJson = (
+  json,
+  config,
+  from,
+  to,
+  integrations,
+  authKeys,
+  member
+) => {
   return new Promise((resolve, reject) => {
     try {
       const eventType = Object.keys(json)[0];
@@ -682,6 +692,17 @@ const getEventsFromJson = (json, from, to, integrations, authKeys, member) => {
                     mustMatch: mustMatch,
                   })
                   .then((data) => {
+                    resolve(data);
+                  })
+                  .catch((err) => {
+                    reject(err);
+                  });
+                break;
+              case "status":
+                statusFetcher
+                  .getInfo({ endpoint: endpoint, config: config })
+                  .then((data) => {
+                    console.log("status call");
                     resolve(data);
                   })
                   .catch((err) => {

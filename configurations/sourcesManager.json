@@ -171,6 +171,11 @@
                 "endpoint": "/search?jql=project={jira.projectId}",
                 "payloadDate": "fields.updated"
             }
+        },
+        "status": {
+            "status": {
+                "endpoint": "/status"
+            }
         }
     },
     "substitutions": [

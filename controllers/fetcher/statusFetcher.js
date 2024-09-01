@@ -6,11 +6,7 @@ const apiUrl = "http://localhost:1880/api";
 const axios = require("axios").default;
 
 // Function who controls the script flow
-const getInfo = (options) => {
-  let config = { ...options.config };
-
-  const params = new URLSearchParams(config).toString();
-
+const getInfo = async (options) => {
   const authConfig = {
     auth: {
       username: process.env.USER_STATUS,
@@ -18,17 +14,17 @@ const getInfo = (options) => {
     },
   };
 
-  const fullUrl = `${apiUrl}${options.endpoint}?${params}`;
+  const requestBody = { ...options.config };
 
-  return axios
-    .get(fullUrl, authConfig)
-    .then((response) => {
-      return response.data;
-    })
-    .catch((error) => {
-      console.error("Request failed:", error);
-      throw error;
-    });
+  const fullUrl = `${apiUrl}${options.endpoint}`;
+
+  try {
+    const response = await axios.post(fullUrl, requestBody, authConfig);
+    return response.data;
+  } catch (error) {
+    console.error("Request failed:", error);
+    throw error;
+  }
 };
 
 exports.getInfo = getInfo;
