@@ -10,30 +10,34 @@ const logger = require("governify-commons").getLogger().tag("sources-manager");
 exports.getEndpoint = (eventType, endpointType, integrations) => {
   try {
     const endpointsJSON = { ...configJSON.endpoints };
-    let endpoint = endpointsJSON[eventType][endpointType].endpoint;
+    let endpoint = "";
+    if (eventType !== "status") {
+      endpoint = endpointsJSON[eventType][endpointType].endpoint;
 
-    // Obtains all {ANY} strings
-    const re = /\{([A-z]|\.)+\}/g;
-    const endpointIntegrations = endpoint.match(re) ? endpoint.match(re) : [];
+      // Obtains all {ANY} strings
+      const re = /\{([A-z]|\.)+\}/g;
+      const endpointIntegrations = endpoint.match(re) ? endpoint.match(re) : [];
 
-    // Substituting endpoint parameters with integrations object
-    for (const integration of endpointIntegrations) {
-      const integrationSplit = integration
-        .replace("{", "")
-        .replace("}", "")
-        .split(".");
+      // Substituting endpoint parameters with integrations object
+      for (const integration of endpointIntegrations) {
+        const integrationSplit = integration
+          .replace("{", "")
+          .replace("}", "")
+          .split(".");
 
-      if (
-        Object.keys(integrations).includes("gitlab") &&
-        integrationSplit[0] === "github"
-      )
-        integrationSplit[0] = "gitlab";
-      endpoint = endpoint.replace(
-        integration,
-        integrations[integrationSplit[0]][integrationSplit[1]]
-      );
+        if (
+          Object.keys(integrations).includes("gitlab") &&
+          integrationSplit[0] === "github"
+        )
+          integrationSplit[0] = "gitlab";
+        endpoint = endpoint.replace(
+          integration,
+          integrations[integrationSplit[0]][integrationSplit[1]]
+        );
+      }
+    } else {
+      endpoint = "/" + endpointType;
     }
-
     return endpoint;
   } catch (err) {
     logger.error("sourcesManager.getEndpoint:\n", err);
